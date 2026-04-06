@@ -2,12 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { verifyToken, authorize } = require('../middleware/authMiddleware');
-
-// Per-engineer active ticket cap for auto-assignment.
-const MAX_ACTIVE_TICKETS_PER_ENGINEER = Number.parseInt(
-  process.env.ROUND_ROBIN_MAX_ACTIVE_TICKETS || '5',
-  10
-);
+const { getNextEngineer } = require('../services/roundRobinService');
 
 // ============================================================================
 // ROUTE 0: GET /api/tickets/activity
@@ -603,67 +598,10 @@ router.post('/', verifyToken, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid status ID' });
     }
 
-    // Load-aware round-robin auto assignment.
-    // 1) Find least-loaded engineers by active tickets.
-    // 2) Apply round-robin only within the least-loaded tie group.
-    let assignedEngineerId = null;
-    let assignedEngineerName = null;
-    let assignmentDeferredReason = '';
-
-    const engineersResult = await db.query(
-      `SELECT
-         u.UserID,
-         u.Name,
-         COALESCE(SUM(CASE WHEN LOWER(TRIM(s.Name)) NOT IN ('resolved', 'closed') THEN 1 ELSE 0 END), 0) AS ActiveCount
-       FROM Users u
-       LEFT JOIN Tickets t ON t.AssignedTo = u.UserID AND IFNULL(t.IsDeleted, 0) = 0
-       LEFT JOIN Status s ON s.StatusID = t.StatusID
-       WHERE LOWER(TRIM(u.Role)) = 'engineer'
-         AND IFNULL(u.IsDeleted, 0) = 0
-         AND u.CompanyID = ?
-       GROUP BY u.UserID, u.Name
-       ORDER BY ActiveCount ASC, u.UserID ASC`,
-      [companyId]
-    );
-
-    const engineers = engineersResult[0] || [];
-    if (engineers.length > 0) {
-      const eligibleEngineers = engineers.filter(
-        (row) => Number(row.ActiveCount || 0) < MAX_ACTIVE_TICKETS_PER_ENGINEER
-      );
-
-      if (eligibleEngineers.length > 0) {
-        const minimumLoad = Math.min(...eligibleEngineers.map((row) => Number(row.ActiveCount || 0)));
-        const tieEngineers = eligibleEngineers
-          .filter((row) => Number(row.ActiveCount || 0) === minimumLoad)
-          .sort((a, b) => Number(a.UserID) - Number(b.UserID));
-
-        const tieEngineerIds = tieEngineers.map((row) => Number(row.UserID)).filter(Boolean);
-
-        const placeholders = tieEngineerIds.map(() => '?').join(', ');
-        const lastAssignedResult = await db.query(
-          `SELECT t.AssignedTo
-           FROM Tickets t
-           WHERE t.AssignedTo IS NOT NULL
-             AND IFNULL(t.IsDeleted, 0) = 0
-             AND t.AssignedTo IN (${placeholders})
-           ORDER BY t.UpdatedAt DESC, t.TicketID DESC
-           LIMIT 1`,
-          [...tieEngineerIds]
-        );
-
-        const lastAssignedId = Number(lastAssignedResult[0]?.[0]?.AssignedTo || 0);
-        const lastIndex = tieEngineerIds.findIndex((id) => id === lastAssignedId);
-        const nextIndex = lastIndex >= 0 ? (lastIndex + 1) % tieEngineerIds.length : 0;
-
-        assignedEngineerId = tieEngineerIds[nextIndex];
-        assignedEngineerName = tieEngineers.find((row) => Number(row.UserID) === assignedEngineerId)?.Name || null;
-      } else {
-        assignmentDeferredReason = `All engineers are at capacity (max ${MAX_ACTIVE_TICKETS_PER_ENGINEER} active tickets)`;
-      }
-    } else {
-      assignmentDeferredReason = 'No engineer available for auto-assignment';
-    }
+    // 🔄 Use workload-aware round-robin assignment from service
+    const selectedEngineer = await getNextEngineer(companyId);
+    let assignedEngineerId = selectedEngineer?.UserID || null;
+    let assignedEngineerName = selectedEngineer?.Name || null;
 
     // Insert ticket (auto-assign engineer when available)
     // If engineer is assigned, set status to "In Progress", otherwise "Open"
@@ -699,19 +637,19 @@ router.post('/', verifyToken, async (req, res) => {
         [
           result[0].insertId,
           userId,
-          'Auto-assigned (Round Robin)',
+          'Auto-assigned (Workload-Aware Round Robin)',
           assignedEngineerName,
         ]
       );
-    } else if (assignmentDeferredReason) {
+    } else {
       await db.query(
         `INSERT INTO AuditLogs (TicketID, UserId, Action, NewValue)
          VALUES (?, ?, ?, ?)`,
         [
           result[0].insertId,
           userId,
-          'Auto-assignment deferred',
-          assignmentDeferredReason,
+          'Manual assignment required',
+          'No engineers available - ticket unassigned',
         ]
       );
     }

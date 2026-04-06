@@ -83,20 +83,30 @@ const getNextEngineer = async (companyId) => {
     // Step 5: Sort by workload (least busy first)
     // If tie, prioritize based on round-robin (next-in-rotation first)
     const sortedEngineers = engineersWithWorkload.sort((a, b) => {
-      // Primary: Lower workload wins
-      if (a.OpenTicketCount !== b.OpenTicketCount) {
-        return a.OpenTicketCount - b.OpenTicketCount;
+      // Primary: Lower workload wins - THE MOST IMPORTANT!
+      const workloadDiff = a.OpenTicketCount - b.OpenTicketCount;
+      if (Math.abs(workloadDiff) > 0) {
+        // If difference is 1 or more, this matters A LOT
+        return workloadDiff;
       }
 
-      // Tiebreaker: Round-robin order
-      // If last engineer exists, prefer the one after them in rotation
+      // Only if EXACTLY same workload, use round-robin tiebreaker
+      // Find the next in rotation after lastEngineerID
       if (lastEngineerID) {
-        const aIsNext = a.UserID === lastEngineerID;
-        const bIsNext = b.UserID === lastEngineerID;
-        if (aIsNext) return 1;
-        if (bIsNext) return -1;
+        // Get the engineer IDs in sorted order to establish rotation
+        const engineerIds = engineersWithWorkload.map(e => e.UserID).sort((x, y) => x - y);
+        const lastIndex = engineerIds.indexOf(lastEngineerID);
+        
+        // Calculate next index in round if we have a last assignment
+        const nextIndexInRotation = (lastIndex + 1) % engineerIds.length;
+        const nextEngineerIdInRotation = engineerIds[nextIndexInRotation];
+        
+        // Prefer the one that's next in rotation
+        if (a.UserID === nextEngineerIdInRotation) return -1; // a comes first
+        if (b.UserID === nextEngineerIdInRotation) return 1;  // b comes first
       }
 
+      // Default: sort by UserID
       return a.UserID - b.UserID;
     });
 
