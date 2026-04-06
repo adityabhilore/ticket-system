@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 import { STATUS_STEPS, FRIENDLY_STATUS } from '../../constants/statusConfig';
+import CSATRating from '../../components/CSATRating';
 
 // Priority colors
 const PRIORITY_COLORS = {
@@ -368,15 +369,27 @@ export default function PortalTicketDetail() {
                 </div>
               </form>
             ) : (
-              <div style={{borderTop:'1px solid #F1F5F9',paddingTop:'14px'}}>
-                <div style={{background:'#FEF2F2',border:'1px solid #FECACA',
-                  borderRadius:'8px',padding:'10px 12px',marginBottom:'12px',
-                  fontSize:'12px',color:'#991B1B',fontWeight:'600'}}>
-                  Ticket Status: {ticket?.StatusName} - Closed tickets cannot receive comments
+              <div>
+                <div style={{borderTop:'1px solid #F1F5F9',paddingTop:'14px'}}>
+                  <div style={{background:'#FEF2F2',border:'1px solid #FECACA',
+                    borderRadius:'8px',padding:'10px 12px',marginBottom:'12px',
+                    fontSize:'12px',color:'#991B1B',fontWeight:'600'}}>
+                    Ticket Status: {ticket?.StatusName} - Closed tickets cannot receive comments
+                  </div>
+                  <div style={{textAlign:'center',fontSize:'13px',color:'#9CA3AF'}}>
+                    This ticket is closed. No further comments allowed.
+                  </div>
                 </div>
-                <div style={{textAlign:'center',fontSize:'13px',color:'#9CA3AF'}}>
-                  This ticket is closed. No further comments allowed.
-                </div>
+                
+                {/* CSAT Rating Component - Show only when closed */}
+                <CSATRating 
+                  ticketId={id} 
+                  ticketStatus={ticket?.StatusName}
+                  onSuccess={() => {
+                    setCommentSuccess(true);
+                    setTimeout(() => setCommentSuccess(false), 5000);
+                  }}
+                />
               </div>
             )}
           </div>

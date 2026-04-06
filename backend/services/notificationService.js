@@ -153,9 +153,9 @@ const notifyTicketCreated = async (ticketId) => {
 };
 
 /**
- * TICKET RESOLVED/CLOSED: Email to Client only
+ * TICKET RESOLVED/CLOSED: Email to Client with reopen buttons
  */
-const notifyTicketResolved = async (ticketId) => {
+const notifyTicketResolved = async (ticketId, reopenToken) => {
   try {
     console.log(`\n${'='.repeat(70)}`);
     console.log(`📬 [Email] TICKET RESOLVED - Ticket #${ticketId}`);
@@ -166,7 +166,8 @@ const notifyTicketResolved = async (ticketId) => {
       `SELECT t.*, 
               u.Name as ClientName, 
               u.Email as ClientEmail,
-              e.Name as EngineerName
+              e.Name as EngineerName,
+              e.Email as EngineerEmail
        FROM Tickets t
        LEFT JOIN Users u ON t.CreatedBy = u.UserID
        LEFT JOIN Users e ON t.AssignedTo = e.UserID
@@ -184,16 +185,22 @@ const notifyTicketResolved = async (ticketId) => {
     console.log(`   Client: ${ticket.ClientName} (${ticket.ClientEmail})`);
     console.log(`   Engineer: ${ticket.EngineerName || 'Not assigned'}\n`);
 
-    // Prepare email with engineer name
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
+
+    // Prepare email with engineer name, reopen token, and action buttons
     const emailVars = {
       TicketID: ticket.TicketID,
       TicketTitle: ticket.Title,
       ClientName: ticket.ClientName,
       EngineerName: ticket.EngineerName || 'Support Team',
       ResolvedAt: new Date().toLocaleString(),
+      reopenToken: reopenToken,
+      backendUrl: backendUrl,
+      confirmUrl: `${backendUrl}/api/tickets/${ticketId}/confirm-resolved?token=${reopenToken}&action=confirmed`,
+      reopenUrl: `${backendUrl}/api/tickets/${ticketId}/confirm-resolved?token=${reopenToken}&action=reopen`,
     };
 
-    // Send email to CLIENT only
+    // Send email to CLIENT with reopen buttons
     console.log(`[EMAIL] Sending to CLIENT (${ticket.ClientEmail})...`);
     const clientTemplate = await getTemplate('TICKET_RESOLVED', 'Client');
     if (clientTemplate && ticket.ClientEmail) {
@@ -207,7 +214,7 @@ const notifyTicketResolved = async (ticketId) => {
         ticket.ClientName,
         'Client'
       );
-      console.log(`✅ Email sent to CLIENT\n`);
+      console.log(`✅ Email sent to CLIENT with reopen token\n`);
     }
 
     console.log(`${'='.repeat(70)}\n`);
@@ -304,6 +311,87 @@ const notifyTicketAssigned = async (ticketId) => {
   }
 };
 
-module.exports = { notifyTicketCreated, notifyTicketResolved, notifyTicketAssigned };
+/**
+ * TICKET REOPENED: Email to Engineer when client reopens a resolved ticket
+ */
+const notifyTicketReopened = async (ticketId) => {
+  try {
+    console.log(`\n${'='.repeat(70)}`);
+    console.log(`📬 [Email] TICKET REOPENED - Ticket #${ticketId}`);
+    console.log(`${'='.repeat(70)}\n`);
+
+    // Get ticket, client info, and engineer details
+    const ticketResult = await query(
+      `SELECT t.*, 
+              u.Name as ClientName, 
+              u.Email as ClientEmail,
+              s.Name as StatusName,
+              p.Name as PriorityName,
+              e.UserID as EngineerID,
+              e.Name as EngineerName,
+              e.Email as EngineerEmail
+       FROM Tickets t
+       LEFT JOIN Users u ON t.CreatedBy = u.UserID
+       LEFT JOIN Users e ON t.AssignedTo = e.UserID
+       LEFT JOIN Status s ON t.StatusID = s.StatusID
+       LEFT JOIN Priority p ON t.PriorityID = p.PriorityID
+       WHERE t.TicketID = ?`,
+      [ticketId]
+    );
+
+    if (!ticketResult[0] || !ticketResult[0][0]) {
+      console.log(`❌ Ticket not found: #${ticketId}\n`);
+      return;
+    }
+
+    const ticket = ticketResult[0][0];
+    console.log(`✅ Ticket: "${ticket.Title}"`);
+    console.log(`   Client: ${ticket.ClientName} (${ticket.ClientEmail})`);
+    console.log(`   Engineer: ${ticket.EngineerName || 'Not assigned'}\n`);
+
+    if (!ticket.EngineerEmail) {
+      console.log(`⚠️ No engineer email found for ticket #${ticketId}\n`);
+      return;
+    }
+
+    // Prepare email variables
+    const emailVars = {
+      TicketID: ticket.TicketID,
+      TicketTitle: ticket.Title,
+      ClientName: ticket.ClientName,
+      EngineerName: ticket.EngineerName || 'Support Team',
+      StatusName: ticket.StatusName || 'Reopened',
+      Priority: ticket.PriorityName || 'Standard',
+      ReopenedAt: new Date().toLocaleString(),
+      SLA_DEADLINE: ticket.SLADeadline ? new Date(ticket.SLADeadline).toLocaleString() : 'N/A',
+    };
+
+    // Send email to ENGINEER
+    console.log(`[EMAIL] Sending REOPENED notification to ENGINEER (${ticket.EngineerEmail})...`);
+    const engineerTemplate = await getTemplate('TICKET_REOPENED', 'Engineer');
+    if (engineerTemplate && ticket.EngineerEmail) {
+      const { subject, body } = renderTemplate(engineerTemplate, emailVars);
+      await sendEmail(
+        ticket.EngineerEmail,
+        subject,
+        body,
+        'TICKET_REOPENED',
+        ticketId,
+        ticket.EngineerName,
+        'Engineer'
+      );
+      console.log(`✅ REOPENED notification sent to ENGINEER\n`);
+    } else {
+      console.log(`⚠️ Skipped ENGINEER email - Template: ${engineerTemplate ? 'OK' : 'MISSING'}\n`);
+    }
+
+    console.log(`${'='.repeat(70)}\n`);
+
+  } catch (error) {
+    console.error(`❌ [Email Error] ${error.message}\n`);
+  }
+};
+
+module.exports = { notifyTicketCreated, notifyTicketResolved, notifyTicketAssigned, notifyTicketReopened };
 
 

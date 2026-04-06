@@ -367,10 +367,22 @@ router.put('/:ticketId/status', verifyToken, authorize(['Engineer', 'Manager']),
 
       // 📧 TRIGGER RESOLVED EMAIL if status = Resolved (4) or Closed (5)
       if ([4, 5].includes(Number(statusId))) {
+        const crypto = require('crypto');
+        
+        // Generate secure reopen token
+        const reopenToken = crypto.randomBytes(32).toString('hex');
+        const reopenTokenExp = new Date();
+        reopenTokenExp.setDate(reopenTokenExp.getDate() + 7); // expires in 7 days
+        
+        // Save token to ticket
+        await db.query(
+          'UPDATE Tickets SET ReopenToken=?, ReopenTokenExp=? WHERE TicketID=?',
+          [reopenToken, reopenTokenExp, ticketId]
+        );
+
         const { notifyTicketResolved } = require('../services/notificationService');
-        notifyTicketResolved(ticketId).catch(err => {
+        notifyTicketResolved(ticketId, reopenToken).catch(err => {
           console.error('⚠️ Resolution email warning (non-blocking):', err.message);
-          // Don't fail the status update if email fails
         });
       }
 
@@ -608,10 +620,10 @@ router.post('/', verifyToken, async (req, res) => {
        LEFT JOIN Status s ON s.StatusID = t.StatusID
        WHERE LOWER(TRIM(u.Role)) = 'engineer'
          AND IFNULL(u.IsDeleted, 0) = 0
-         AND u.CompanyID = 1
+         AND u.CompanyID = ?
        GROUP BY u.UserID, u.Name
        ORDER BY ActiveCount ASC, u.UserID ASC`,
-      []
+      [companyId]
     );
 
     const engineers = engineersResult[0] || [];
@@ -788,5 +800,224 @@ router.post('/', verifyToken, async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });
+
+// ============================================================================
+// ROUTE 8: GET /api/tickets/:ticketId/confirm-resolved
+// Handle email button clicks: client confirms resolution or reopens ticket
+// No auth required (token-based security)
+// ============================================================================
+router.get('/:ticketId/confirm-resolved', async (req, res) => {
+  try {
+    const { ticketId } = req.params;
+    const { token, action } = req.query;
+    const crypto = require('crypto');
+
+    // Validate params
+    if (!token || !action) {
+      return res.send(`
+        <html>
+        <head><meta charset="UTF-8"/><title>TicketDesk</title>
+        <style>body{font-family:Arial;margin:0;padding:0;background:#F8FAFC}.container{max-width:520px;margin:40px auto;background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,0.1);overflow:hidden}.header{background:linear-gradient(135deg,#1E1B4B,#4F46E5);padding:28px 40px;text-align:center;color:#fff}.header-title{font-size:24px;font-weight:700;margin:0}.header-subtitle{font-size:13px;color:rgba(255,255,255,0.6);margin-top:3px}.content{padding:32px 40px;text-align:center;background:#FEF2F2;border-bottom:2px solid #FECACA}.content-emoji{font-size:52px;margin-bottom:12px}.content h2{font-size:22px;font-weight:700;color:#991B1B;margin:0 0 10px}.content p{font-size:14px;color:#374151;line-height:1.7;margin:0}.footer{padding:20px 40px;text-align:center}.footer p{font-size:12px;color:#9CA3AF;margin:0}</style></head>
+        <body><table width="100%"><tr><td><div class="container"><div class="header"><div class="header-title">TicketDesk</div><div class="header-subtitle">Support System</div></div><div class="content"><div class="content-emoji">❌</div><h2>Invalid Request</h2><p>This link is missing required parameters.</p></div><div class="footer"><p>You can close this window</p></div></div></td></tr></table></body>
+        </html>
+      `);
+    }
+
+    // Get ticket and validate token
+    const ticketResult = await db.query(`
+      SELECT
+        t.TicketID, t.Title, t.ReopenToken, t.ReopenTokenExp,
+        t.AssignedTo, t.CreatedBy, t.CompanyID,
+        s.Name AS StatusName, s.StatusID
+      FROM Tickets t
+      JOIN Status s ON t.StatusID = s.StatusID
+      WHERE t.TicketID = ? AND IFNULL(t.IsDeleted, 0) = 0
+    `, [ticketId]);
+
+    if (!ticketResult[0] || ticketResult[0].length === 0) {
+      return buildAndSendResponse(res, 'error', '❌', 'Ticket Not Found', 'This ticket does not exist.');
+    }
+
+    const ticket = ticketResult[0][0];
+
+    // Validate token
+    if (!ticket.ReopenToken || ticket.ReopenToken !== token) {
+      return buildAndSendResponse(res, 'error', '🔒', 'Invalid Link', 'This link is invalid or has been used.');
+    }
+
+    // Check expiry
+    if (new Date() > new Date(ticket.ReopenTokenExp)) {
+      return buildAndSendResponse(res, 'error', '⏰', 'Link Expired', 'This link expired (valid for 7 days). Contact support.');
+    }
+
+    // Check ticket is Resolved or Closed
+    if (!['Resolved', 'Closed'].includes(ticket.StatusName)) {
+      return buildAndSendResponse(res, 'info', 'ℹ️', 'Ticket Already Active', `Ticket #${ticketId} is already being worked on.`);
+    }
+
+    // ═══ ACTION: CONFIRMED ═══
+    if (action === 'confirmed') {
+      // Clear token
+      await db.query(
+        'UPDATE Tickets SET ReopenToken=NULL, ReopenTokenExp=NULL WHERE TicketID=?',
+        [ticketId]
+      );
+
+      // Audit log
+      await db.query(`
+        INSERT INTO AuditLogs (TicketID, UserId, Action, NewValue, CreatedAt)
+        VALUES (?, ?, ?, ?, NOW())
+      `, [ticketId, ticket.CreatedBy, 'Client confirmed resolution', 'Issue resolved']);
+
+      return buildAndSendResponse(res, 'success', '🎉', 'Thank You!', `Your issue with ticket #${ticketId} has been marked as resolved. Thanks for your feedback!`);
+    }
+
+    // ═══ ACTION: REOPEN ═══
+    if (action === 'reopen') {
+      // Get Reopened StatusID
+      const reopenedResult = await db.query("SELECT StatusID FROM Status WHERE Name='Reopened' LIMIT 1");
+
+      if (!reopenedResult[0] || reopenedResult[0].length === 0) {
+        return buildAndSendResponse(res, 'error', '⚙️', 'System Error', 'Could not reopen ticket. Contact support.');
+      }
+
+      const reopenedStatusId = reopenedResult[0][0].StatusID;
+
+      // Reopen ticket
+      await db.query(`
+        UPDATE Tickets
+        SET StatusID=?, IsOverdue=0, ReopenToken=NULL, ReopenTokenExp=NULL, UpdatedAt=NOW()
+        WHERE TicketID=?
+      `, [reopenedStatusId, ticketId]);
+
+      // Audit log
+      await db.query(`
+        INSERT INTO AuditLogs (TicketID, UserId, Action, OldValue, NewValue, CreatedAt)
+        VALUES (?, ?, ?, ?, ?, NOW())
+      `, [ticketId, ticket.CreatedBy, 'Ticket reopened by client', ticket.StatusName, 'Reopened']);
+
+      // Get engineer + client info for email
+      const infoResult = await db.query(`
+        SELECT
+          eng.Name AS engineerName,
+          eng.Email AS engineerEmail,
+          cli.Name AS clientName,
+          co.Name AS companyName
+        FROM Tickets t
+        JOIN Users eng ON t.AssignedTo  = eng.UserID
+        JOIN Users cli ON t.CreatedBy   = cli.UserID
+        JOIN Companies co ON t.CompanyID = co.CompanyID
+        WHERE t.TicketID = ?
+      `, [ticketId]);
+
+      // Send reopen email to engineer (non-blocking)
+      if (infoResult[0] && infoResult[0].length > 0) {
+        const info = infoResult[0][0];
+        const { sendEmail } = require('../services/emailService');
+        
+        const engineerHTML = `
+          <html><body style="margin:0;padding:0;background:#F8FAFC;font-family:Arial">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;padding:40px 20px;">
+              <tr><td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);overflow:hidden;">
+                  <tr><td style="background:linear-gradient(135deg,#7F1D1D,#EF4444);padding:32px 40px;text-align:center;">
+                    <div style="font-size:28px;font-weight:700;color:#fff;">TicketDesk</div>
+                    <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:4px;">Action Required</div>
+                  </td></tr>
+                  <tr><td style="background:#FEF2F2;padding:20px 40px;border-bottom:2px solid #FECACA;text-align:center;">
+                    <div style="font-size:36px;margin-bottom:6px;">🔄</div>
+                    <div style="font-size:18px;font-weight:700;color:#991B1B;">Ticket Reopened</div>
+                  </td></tr>
+                  <tr><td style="padding:28px 40px;">
+                    <p style="font-size:16px;color:#1E293B;margin:0 0 12px;"><strong>${info.engineerName}</strong>,</p>
+                    <p style="font-size:14px;color:#374151;line-height:1.7;margin:0 0 20px;">The client reported that their issue is <strong style="color:#EF4444;">still not resolved</strong>. Ticket #${ticketId} has been reopened.</p>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;margin-bottom:24px;">
+                      <tr><td style="padding:18px 22px;">Ticket: <strong>#${ticketId}</strong> — <strong>${ticket.Title}</strong><br/>Client: <strong>${info.clientName}</strong><br/>Company: <strong>${info.companyName}</strong></td></tr>
+                    </table>
+                    <p style="font-size:13px;color:#6B7280;">Please review and resolve the issue.</p>
+                  </td></tr>
+                  <tr><td style="background:#F8FAFC;padding:16px 40px;border-top:1px solid #E2E8F0;text-align:center;">
+                    <p style="font-size:12px;color:#9CA3AF;margin:0;">TicketDesk Support System</p>
+                  </td></tr>
+                </table>
+              </td></tr>
+            </table>
+          </body></html>
+        `;
+
+        sendEmail(
+          info.engineerEmail,
+          `🔄 Ticket Reopened #${ticketId} — ${ticket.Title}`,
+          engineerHTML,
+          'TICKET_REOPENED',
+          ticketId,
+          info.engineerName,
+          'Engineer'
+        ).catch(err => console.error('Reopen email error:', err));
+      }
+
+      return buildAndSendResponse(res, 'warning', '🔄', 'Ticket Reopened', `Ticket #${ticketId} has been reopened. Our team will work on it again shortly.`);
+    }
+
+    return buildAndSendResponse(res, 'error', '❌', 'Invalid Action', 'Unknown action.');
+
+  } catch (err) {
+    console.error('Confirm resolved error:', err);
+    return buildAndSendResponse(res, 'error', '❌', 'Server Error', 'Something went wrong. Contact support.');
+  }
+});
+
+// Helper function to send styled response pages
+function buildAndSendResponse(res, type, emoji, title, message) {
+  const colors = {
+    success: { bg: '#F0FDF4', border: '#BBF7D0', title: '#065F46' },
+    error: { bg: '#FEF2F2', border: '#FECACA', title: '#991B1B' },
+    warning: { bg: '#FFFBEB', border: '#FCD34D', title: '#92400E' },
+    info: { bg: '#EFF6FF', border: '#BFDBFE', title: '#1E40AF' },
+  };
+  const c = colors[type] || colors.info;
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="UTF-8"/>
+      <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+      <title>TicketDesk</title>
+      <style>
+        body { margin:0; padding:0; background:#F8FAFC; font-family:Arial; min-height:100vh; display:flex; align-items:center; justify-content:center; }
+        .container { max-width:520px; width:90%; background:#fff; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,0.1); }
+        .header { background:linear-gradient(135deg,#1E1B4B,#4F46E5); padding:28px 40px; text-align:center; }
+        .header-title { font-size:24px; font-weight:700; color:#fff; margin:0; }
+        .header-subtitle { font-size:13px; color:rgba(255,255,255,0.6); margin-top:3px; }
+        .content { padding:32px 40px; text-align:center; background:${c.bg}; border-bottom:2px solid ${c.border}; }
+        .emoji { font-size:52px; margin-bottom:12px; }
+        .title { font-size:22px; font-weight:700; color:${c.title}; margin:0 0 10px; }
+        .message { font-size:14px; color:#374151; line-height:1.7; margin:0; }
+        .footer { padding:20px 40px; text-align:center; }
+        .footer p { font-size:12px; color:#9CA3AF; margin:0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <div class="header-title">TicketDesk</div>
+          <div class="header-subtitle">Support System</div>
+        </div>
+        <div class="content">
+          <div class="emoji">${emoji}</div>
+          <h2 class="title">${title}</h2>
+          <p class="message">${message}</p>
+        </div>
+        <div class="footer">
+          <p>You can close this window</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  res.send(html);
+}
 
 module.exports = router;

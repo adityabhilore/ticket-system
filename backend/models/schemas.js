@@ -89,10 +89,11 @@ const CommentSchema = {
 
 // CSAT Rating Model
 const CSATSchema = {
-  id: 'INT (Primary Key)',
+  RatingID: 'INT (Primary Key)',
   TicketID: 'INT (FK -> Tickets.TicketID)',
-  Rating: 'INT (1-5)',
-  Feedback: 'TEXT',
+  UserID: 'INT (FK -> Users.UserID)',
+  Stars: 'INT (1-5)',
+  Comment: 'TEXT',
   CreatedAt: 'DATETIME',
 };
 

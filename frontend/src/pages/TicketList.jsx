@@ -8,6 +8,7 @@ const STATUS_COLORS = {
   'In Progress': { bg:'#DBEAFE', color:'#1E40AF', dot:'#4F46E5' },
   'On Hold':     { bg:'#FEF3C7', color:'#92400E', dot:'#EAB308' },
   'Resolved':    { bg:'#CCFBF1', color:'#134E4A', dot:'#06B6D4' },
+  'Reopened':    { bg:'#FED7AA', color:'#92400E', dot:'#F59E0B' },
   'Closed':      { bg:'#F3F4F6', color:'#374151', dot:'#9CA3AF' },
 };
 const PRIORITY_COLORS = {

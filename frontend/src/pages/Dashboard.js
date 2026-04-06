@@ -25,6 +25,7 @@ const STATUS_COLORS = {
   'In Progress': '#F59E0B',
   'On Hold': '#EAB308',
   Resolved: '#10B981',
+  Reopened: '#F59E0B',
   Closed: '#6B7280',
 };
 

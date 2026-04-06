@@ -3,13 +3,14 @@
  * Defines the complete status flow and styling
  */
 
-export const STATUS_STEPS = ['Open', 'In Progress', 'On Hold', 'Resolved', 'Closed'];
+export const STATUS_STEPS = ['Open', 'In Progress', 'On Hold', 'Resolved', 'Reopened', 'Closed'];
 
 export const STATUS_COLORS = {
   'Open':        { bg:'#D1FAE5', color:'#065F46', dot:'#10B981', statusId: 1 },
   'In Progress': { bg:'#DBEAFE', color:'#1E40AF', dot:'#4F46E5', statusId: 2 },
   'On Hold':     { bg:'#FEF3C7', color:'#92400E', dot:'#EAB308', statusId: 3 },
   'Resolved':    { bg:'#CCFBF1', color:'#134E4A', dot:'#06B6D4', statusId: 4 },
+  'Reopened':    { bg:'#FED7AA', color:'#92400E', dot:'#F59E0B', statusId: 6 },
   'Closed':      { bg:'#F3F4F6', color:'#374151', dot:'#9CA3AF', statusId: 5 },
 };
 
@@ -18,6 +19,7 @@ export const FRIENDLY_STATUS = {
   'In Progress': 'Our team is working on it',
   'On Hold': 'Waiting for additional information',
   'Resolved': 'Solution has been provided',
+  'Reopened': 'Issue reopened - working on it again',
   'Closed': 'Issue completed'
 };
 
@@ -27,6 +29,7 @@ export const STATUS_IDS = {
   ON_HOLD: 3,
   RESOLVED: 4,
   CLOSED: 5,
+  REOPENED: 6,
 };
 
 // Helper to get status ID from status name

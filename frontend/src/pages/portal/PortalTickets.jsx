@@ -70,6 +70,8 @@ export default function PortalTickets() {
       String(getTicketId(t) || '').includes(search));
     if (tab === 'ResolvedOrClosed') {
       r = r.filter(t => ['Resolved', 'Closed'].includes(t.StatusName));
+    } else if (tab === 'Reopened') {
+      r = r.filter(t => t.StatusName === 'Reopened');
     } else if (tab) {
       r = r.filter(t => t.StatusName === tab);
     }
@@ -244,6 +246,7 @@ export default function PortalTickets() {
                 <option value="Open">Open</option>
                 <option value="In Progress">In Progress</option>
                 <option value="On Hold">On Hold</option>
+                <option value="Reopened">Reopened</option>
                 <option value="ResolvedOrClosed">Resolved / Closed</option>
               </select>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
