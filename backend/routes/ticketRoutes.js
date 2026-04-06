@@ -731,7 +731,7 @@ router.post('/', verifyToken, async (req, res) => {
         : null,
       message: assignedEngineerId
         ? `Ticket created and auto-assigned to ${assignedEngineerName}`
-        : `Ticket created and queued. ${assignmentDeferredReason || 'Awaiting manual assignment.'}`
+        : 'Ticket created - no engineers available, awaiting manual assignment'
     });
   } catch (err) {
     console.error('Create ticket error:', err);
