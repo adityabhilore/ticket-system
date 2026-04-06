@@ -1,0 +1,490 @@
+/* Messages Component Styles */
+
+.messages-container {
+  display: flex;
+  height: 100vh;
+  background: #f3f4f6;
+  overflow: hidden;
+}
+
+.messages-left-panel {
+  width: 300px;
+  background: white;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.messages-left-header {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.messages-title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.messages-new-chat-btn {
+  background: #4338ca;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.messages-new-chat-btn:hover {
+  background: #3730a3;
+}
+
+.messages-search-input {
+  margin: 12px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 13px;
+  outline: none;
+}
+
+.messages-search-input:focus {
+  border-color: #4338ca;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+}
+
+.messages-conv-list {
+  flex: 1;
+  overflow: auto;
+}
+
+.messages-conv-row {
+  padding: 12px;
+  display: flex;
+  gap: 10px;
+  border-bottom: 1px solid #f3f4f6;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.messages-conv-row:hover {
+  background: #f9fafb;
+}
+
+.messages-conv-row.active {
+  background: #4338ca;
+  color: white;
+}
+
+.messages-conv-avatar {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.messages-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.messages-conv-content {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.messages-conv-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.messages-conv-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.messages-conv-time {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+.messages-conv-middle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.messages-role-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+.messages-unread-badge {
+  background: #ef4444;
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.messages-conv-preview {
+  font-size: 12px;
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.messages-empty-state {
+  padding: 20px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* Right Panel */
+.messages-right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #f9fafb;
+  overflow: hidden;
+}
+
+.messages-empty-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #9ca3af;
+}
+
+.messages-empty-icon {
+  font-size: 64px;
+  margin-bottom: 16px;
+}
+
+.messages-empty-text {
+  font-size: 16px;
+}
+
+/* Chat Header */
+.messages-chat-header {
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.messages-chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.messages-chat-header-name {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.messages-chat-header-info {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.messages-online-indicator {
+  margin-right: 4px;
+}
+
+/* Messages Area */
+.messages-area {
+  flex: 1;
+  overflow: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.messages-loading {
+  text-align: center;
+  color: #9ca3af;
+  padding: 20px;
+}
+
+.messages-no-messages {
+  text-align: center;
+  color: #9ca3af;
+  padding: 20px;
+}
+
+.messages-date-separator {
+  text-align: center;
+  font-size: 12px;
+  color: #9ca3af;
+  margin: 12px 0;
+  position: relative;
+}
+
+.messages-wrapper {
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+}
+
+.messages-meta {
+  margin-bottom: 2px;
+}
+
+.messages-sender-name {
+  font-size: 11px;
+  color: #6b7280;
+  font-weight: 600;
+}
+
+.messages-bubble {
+  max-width: 60%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  font-size: 14px;
+  word-wrap: break-word;
+  line-height: 1.4;
+}
+
+.messages-my-message {
+  background: #4338ca;
+  color: white;
+  border-radius: 12px 12px 2px 12px;
+  align-self: flex-end;
+}
+
+.messages-other-message {
+  background: white;
+  color: #1f2937;
+  border-radius: 12px 12px 12px 2px;
+  align-self: flex-start;
+}
+
+.messages-timestamp {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+/* Input Area */
+.messages-input-form {
+  padding: 12px 16px;
+  background: white;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  gap: 8px;
+}
+
+.messages-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.messages-input:focus {
+  border-color: #4338ca;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+}
+
+.messages-send-btn {
+  background: #4338ca;
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.messages-send-btn:hover:not(:disabled) {
+  background: #3730a3;
+}
+
+.messages-send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Modal */
+.messages-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.messages-modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-modal-header {
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.messages-modal-title {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: bold;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.messages-modal-close {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+}
+
+.messages-modal-close:hover {
+  color: #1f2937;
+}
+
+.messages-modal-search {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.messages-modal-search:focus {
+  border-color: #4338ca;
+  box-shadow: 0 0 0 3px rgba(67, 56, 202, 0.1);
+}
+
+.messages-modal-list {
+  flex: 1;
+  overflow: auto;
+  padding: 12px 0;
+}
+
+.messages-modal-section-header {
+  padding: 12px 20px;
+  font-size: 12px;
+  font-weight: bold;
+  color: #9ca3af;
+  background: #f9fafb;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.messages-modal-user-row {
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  background: white;
+  border-bottom: 1px solid #f3f4f6;
+  transition: background 0.2s;
+}
+
+.messages-modal-user-row:hover {
+  background: #f9fafb;
+}
+
+.messages-user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.messages-user-name {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.messages-user-email {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.messages-user-role {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+}
+
+/* Scrollbar */
+.messages-area::-webkit-scrollbar,
+.messages-conv-list::-webkit-scrollbar,
+.messages-modal-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.messages-area::-webkit-scrollbar-track,
+.messages-conv-list::-webkit-scrollbar-track,
+.messages-modal-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.messages-area::-webkit-scrollbar-thumb,
+.messages-conv-list::-webkit-scrollbar-thumb,
+.messages-modal-list::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.messages-area::-webkit-scrollbar-thumb:hover,
+.messages-conv-list::-webkit-scrollbar-thumb:hover,
+.messages-modal-list::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
