@@ -443,7 +443,7 @@ export default function AdminReports() {
         marginBottom: '24px',
       }}>
         <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: '#1F2937' }}>
-          Tickets by Company
+          Top Five Company Tickets
         </div>
         {displayReports?.byCompany && displayReports.byCompany.length > 0 ? (
           <div style={{ overflowX: 'auto' }}>
@@ -451,47 +451,49 @@ export default function AdminReports() {
               width: '100%',
               borderCollapse: 'collapse',
               fontSize: '14px',
+              tableLayout: 'fixed',
             }}>
               <thead>
                 <tr style={{ background: '#F3F4F6', borderBottom: '2px solid #E5E7EB' }}>
                   <th style={{
-                    padding: '12px 16px',
-                    textAlign: 'left',
+                    padding: '12px 12px',
+                    textAlign: 'center',
                     fontWeight: '600',
                     color: '#1F2937',
-                    width: '50px',
+                    width: '60px',
                   }}>Sr. No</th>
                   <th style={{
-                    padding: '12px 16px',
+                    padding: '12px 20px',
                     textAlign: 'left',
                     fontWeight: '600',
                     color: '#1F2937',
+                    width: '40%',
                   }}>Company Name</th>
                   <th style={{
-                    padding: '12px 16px',
+                    padding: '12px 8px',
                     textAlign: 'center',
                     fontWeight: '600',
                     color: '#1F2937',
-                    width: '100px',
+                    width: '20%',
                   }}>Total Tickets</th>
                   <th style={{
-                    padding: '12px 16px',
+                    padding: '12px 8px',
                     textAlign: 'center',
                     fontWeight: '600',
                     color: '#1F2937',
-                    width: '100px',
+                    width: '20%',
                   }}>Solved Tickets</th>
                   <th style={{
-                    padding: '12px 16px',
+                    padding: '12px 8px',
                     textAlign: 'center',
                     fontWeight: '600',
                     color: '#1F2937',
-                    width: '100px',
+                    width: '20%',
                   }}>Remaining Tickets</th>
                 </tr>
               </thead>
               <tbody>
-                {[...displayReports.byCompany].sort((a, b) => b.count - a.count).map((company, idx) => {
+                {[...displayReports.byCompany].sort((a, b) => b.count - a.count).slice(0, 5).map((company, idx) => {
                   const totalTickets = company.count || 0;
                   const solvedTickets = company.solvedCount || 0;
                   const remainingTickets = totalTickets - solvedTickets;
@@ -504,29 +506,33 @@ export default function AdminReports() {
                     onMouseEnter={(e) => e.currentTarget.style.background = '#F3F4F6'}
                     onMouseLeave={(e) => e.currentTarget.style.background = idx % 2 === 0 ? '#fff' : '#F9FAFB'}>
                       <td style={{
-                        padding: '12px 16px',
+                        padding: '12px 12px',
+                        textAlign: 'center',
                         color: '#6B7280',
                         fontWeight: '500',
                       }}>{idx + 1}</td>
                       <td style={{
-                        padding: '12px 16px',
+                        padding: '12px 20px',
                         color: '#1F2937',
                         fontWeight: '500',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap',
                       }}>{company.CompanyName}</td>
                       <td style={{
-                        padding: '12px 16px',
+                        padding: '12px 8px',
                         textAlign: 'center',
                         color: '#4F46E5',
                         fontWeight: '700',
                       }}>{totalTickets}</td>
                       <td style={{
-                        padding: '12px 16px',
+                        padding: '12px 8px',
                         textAlign: 'center',
                         color: '#10B981',
                         fontWeight: '700',
                       }}>{solvedTickets}</td>
                       <td style={{
-                        padding: '12px 16px',
+                        padding: '12px 8px',
                         textAlign: 'center',
                         color: '#EF4444',
                         fontWeight: '700',

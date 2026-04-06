@@ -160,6 +160,70 @@ router.put('/notifications/:notificationId/read', verifyToken, async (req, res) 
 });
 
 /**
+ * GET /api/auth/emails
+ * Get all email notifications for current user (Engineer)
+ * Shows emails like TICKET_REOPENED, TICKET_ASSIGNED, etc.
+ */
+router.get('/emails', verifyToken, async (req, res) => {
+  try {
+    const { userId, role } = req;
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const requestedLimit = parseInt(req.query.limit, 10) || 25;
+    const limit = Math.min(Math.max(requestedLimit, 1), 100);
+    const offset = (page - 1) * limit;
+
+    // Only Engineers can view their received emails
+    if (role !== 'Engineer') {
+      return res.status(403).json({ message: 'Only engineers can view email notifications' });
+    }
+
+    const countSql = `
+      SELECT COUNT(*) AS total
+      FROM EmailNotifications e
+      LEFT JOIN Tickets t ON t.TicketID = e.TicketID
+      WHERE e.RecipientRole = 'Engineer' AND (t.AssignedTo = ? OR e.TicketID IS NULL)
+    `;
+    const countResult = await db.query(countSql, [userId]);
+    const total = countResult[0]?.[0]?.total || 0;
+
+    const sql = `
+      SELECT 
+        e.NotificationID as EmailNotificationID,
+        e.TicketID,
+        e.TemplateType,
+        e.RecipientEmail,
+        e.RecipientName,
+        e.Subject,
+        e.EmailBody,
+        e.Status,
+        e.SentAt,
+        t.Title as TicketTitle,
+        CONCAT('#', t.TicketID) as TicketNumber
+      FROM EmailNotifications e
+      LEFT JOIN Tickets t ON t.TicketID = e.TicketID
+      WHERE e.RecipientRole = 'Engineer' AND e.RecipientEmail IN 
+        (SELECT Email FROM Users WHERE UserID = ?)
+      ORDER BY e.SentAt DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const result = await db.query(sql, [userId, limit, offset]);
+    const data = result[0] || [];
+
+    res.json({
+      data,
+      page,
+      limit,
+      total,
+      hasMore: offset + data.length < total,
+    });
+  } catch(err) {
+    console.error('Failed to fetch emails:', err);
+    res.status(500).json({ message: 'Failed to fetch email notifications' });
+  }
+});
+
+/**
  * POST /api/auth/test-email-trigger (DEVELOPMENT ONLY)
  * Manually trigger email notifications for testing
  * Usage: POST /api/auth/test-email-trigger with { ticketId: 64 }

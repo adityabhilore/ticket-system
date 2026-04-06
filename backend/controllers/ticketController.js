@@ -267,11 +267,18 @@ const updateStatus = async (req, res) => {
     }
 
     // Trigger resolution email if status is Resolved (4) or Closed (5)
-    // Adjust status IDs based on your Status table
     if ([4, 5].includes(statusId)) {
       const { notifyTicketResolved } = require('../services/notificationService');
       notifyTicketResolved(ticketId).catch(err => {
         console.error('⚠️ Resolution email warning:', err.message);
+      });
+    }
+
+    // Trigger reopened email if status is Reopened (6)
+    if (statusId === 6) {
+      const { notifyTicketReopened } = require('../services/notificationService');
+      notifyTicketReopened(ticketId).catch(err => {
+        console.error('⚠️ Reopened email warning:', err.message);
       });
     }
 

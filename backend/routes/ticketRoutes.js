@@ -381,6 +381,14 @@ router.put('/:ticketId/status', verifyToken, authorize(['Engineer', 'Manager']),
         });
       }
 
+      // 📧 TRIGGER REOPENED EMAIL if status = Reopened (6)
+      if (Number(statusId) === 6) {
+        const { notifyTicketReopened } = require('../services/notificationService');
+        notifyTicketReopened(ticketId).catch(err => {
+          console.error('⚠️ Reopened email warning (non-blocking):', err.message);
+        });
+      }
+
       res.json({ success: true, message: `Status updated to ${newStatus.Name}` });
     } catch (err) {
       console.error('Update status error:', err);
@@ -637,7 +645,7 @@ router.post('/', verifyToken, async (req, res) => {
         [
           result[0].insertId,
           userId,
-          'Auto-assigned (Workload-Aware Round Robin)',
+          'Ticket Assigned',
           assignedEngineerName,
         ]
       );
@@ -709,7 +717,7 @@ router.post('/', verifyToken, async (req, res) => {
           ticketId,
           'assigned',
           'Ticket Assigned',
-          `You have been auto-assigned (Round Robin) to ticket: ${title.trim()}`,
+          `New ticket assigned: ${title.trim()}`,
         ]
       );
     }
@@ -730,8 +738,8 @@ router.post('/', verifyToken, async (req, res) => {
         ? { userId: assignedEngineerId, name: assignedEngineerName }
         : null,
       message: assignedEngineerId
-        ? `Ticket created and auto-assigned to ${assignedEngineerName}`
-        : 'Ticket created - no engineers available, awaiting manual assignment'
+        ? `Ticket created and assigned to ${assignedEngineerName}`
+        : 'Ticket created - awaiting assignment'
     });
   } catch (err) {
     console.error('Create ticket error:', err);
@@ -807,6 +815,65 @@ router.get('/:ticketId/confirm-resolved', async (req, res) => {
         VALUES (?, ?, ?, ?, NOW())
       `, [ticketId, ticket.CreatedBy, 'Client confirmed resolution', 'Issue resolved']);
 
+      // Send confirmation email to engineer
+      const confirmResult = await db.query(`
+        SELECT
+          eng.Name AS engineerName,
+          eng.Email AS engineerEmail,
+          cli.Name AS clientName,
+          co.Name AS companyName
+        FROM Tickets t
+        JOIN Users eng ON t.AssignedTo = eng.UserID
+        JOIN Users cli ON t.CreatedBy = cli.UserID
+        JOIN Companies co ON t.CompanyID = co.CompanyID
+        WHERE t.TicketID = ?
+      `, [ticketId]);
+
+      if (confirmResult[0] && confirmResult[0].length > 0) {
+        const info = confirmResult[0][0];
+        const { sendEmail } = require('../services/emailService');
+        
+        const engineerHTML = `
+          <html><body style="margin:0;padding:0;background:#F8FAFC;font-family:Arial">
+            <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;padding:40px 20px;">
+              <tr><td align="center">
+                <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);overflow:hidden;">
+                  <tr><td style="background:linear-gradient(135deg,#065F46,#10B981);padding:32px 40px;text-align:center;">
+                    <div style="font-size:28px;font-weight:700;color:#fff;">TicketDesk</div>
+                    <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:4px;">Issue Resolved</div>
+                  </td></tr>
+                  <tr><td style="background:#F0FDF4;padding:20px 40px;border-bottom:2px solid #BBF7D0;text-align:center;">
+                    <div style="font-size:36px;margin-bottom:6px;">✅</div>
+                    <div style="font-size:18px;font-weight:700;color:#065F46;">Issue Confirmed Resolved</div>
+                  </td></tr>
+                  <tr><td style="padding:28px 40px;">
+                    <p style="font-size:16px;color:#1E293B;margin:0 0 12px;"><strong>${info.engineerName}</strong>,</p>
+                    <p style="font-size:14px;color:#374151;line-height:1.7;margin:0 0 20px;">Great news! The client has confirmed that their issue has been <strong style="color:#10B981;">successfully resolved</strong>. Ticket #${ticketId} is now closed.</p>
+                    <table width="100%" cellpadding="0" cellspacing="0" style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;margin-bottom:24px;">
+                      <tr><td style="padding:18px 22px;">Ticket: <strong>#${ticketId}</strong> — <strong>${ticket.Title}</strong><br/>Client: <strong>${info.clientName}</strong><br/>Company: <strong>${info.companyName}</strong></td></tr>
+                    </table>
+                    <p style="font-size:13px;color:#6B7280;">Thank you for resolving this issue!</p>
+                  </td></tr>
+                  <tr><td style="background:#F8FAFC;padding:16px 40px;border-top:1px solid #E2E8F0;text-align:center;">
+                    <p style="font-size:12px;color:#9CA3AF;margin:0;">TicketDesk Support System</p>
+                  </td></tr>
+                </table>
+              </td></tr>
+            </table>
+          </body></html>
+        `;
+
+        sendEmail(
+          info.engineerEmail,
+          `✅ Ticket Confirmed Resolved #${ticketId} — ${ticket.Title}`,
+          engineerHTML,
+          'TICKET_CONFIRMED',
+          ticketId,
+          info.engineerName,
+          'Engineer'
+        ).catch(err => console.error('Confirmation email error:', err));
+      }
+
       return buildAndSendResponse(res, 'success', '🎉', 'Thank You!', `Your issue with ticket #${ticketId} has been marked as resolved. Thanks for your feedback!`);
     }
 
@@ -834,65 +901,11 @@ router.get('/:ticketId/confirm-resolved', async (req, res) => {
         VALUES (?, ?, ?, ?, ?, NOW())
       `, [ticketId, ticket.CreatedBy, 'Ticket reopened by client', ticket.StatusName, 'Reopened']);
 
-      // Get engineer + client info for email
-      const infoResult = await db.query(`
-        SELECT
-          eng.Name AS engineerName,
-          eng.Email AS engineerEmail,
-          cli.Name AS clientName,
-          co.Name AS companyName
-        FROM Tickets t
-        JOIN Users eng ON t.AssignedTo  = eng.UserID
-        JOIN Users cli ON t.CreatedBy   = cli.UserID
-        JOIN Companies co ON t.CompanyID = co.CompanyID
-        WHERE t.TicketID = ?
-      `, [ticketId]);
-
-      // Send reopen email to engineer (non-blocking)
-      if (infoResult[0] && infoResult[0].length > 0) {
-        const info = infoResult[0][0];
-        const { sendEmail } = require('../services/emailService');
-        
-        const engineerHTML = `
-          <html><body style="margin:0;padding:0;background:#F8FAFC;font-family:Arial">
-            <table width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC;padding:40px 20px;">
-              <tr><td align="center">
-                <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,0.08);overflow:hidden;">
-                  <tr><td style="background:linear-gradient(135deg,#7F1D1D,#EF4444);padding:32px 40px;text-align:center;">
-                    <div style="font-size:28px;font-weight:700;color:#fff;">TicketDesk</div>
-                    <div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:4px;">Action Required</div>
-                  </td></tr>
-                  <tr><td style="background:#FEF2F2;padding:20px 40px;border-bottom:2px solid #FECACA;text-align:center;">
-                    <div style="font-size:36px;margin-bottom:6px;">🔄</div>
-                    <div style="font-size:18px;font-weight:700;color:#991B1B;">Ticket Reopened</div>
-                  </td></tr>
-                  <tr><td style="padding:28px 40px;">
-                    <p style="font-size:16px;color:#1E293B;margin:0 0 12px;"><strong>${info.engineerName}</strong>,</p>
-                    <p style="font-size:14px;color:#374151;line-height:1.7;margin:0 0 20px;">The client reported that their issue is <strong style="color:#EF4444;">still not resolved</strong>. Ticket #${ticketId} has been reopened.</p>
-                    <table width="100%" cellpadding="0" cellspacing="0" style="background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;margin-bottom:24px;">
-                      <tr><td style="padding:18px 22px;">Ticket: <strong>#${ticketId}</strong> — <strong>${ticket.Title}</strong><br/>Client: <strong>${info.clientName}</strong><br/>Company: <strong>${info.companyName}</strong></td></tr>
-                    </table>
-                    <p style="font-size:13px;color:#6B7280;">Please review and resolve the issue.</p>
-                  </td></tr>
-                  <tr><td style="background:#F8FAFC;padding:16px 40px;border-top:1px solid #E2E8F0;text-align:center;">
-                    <p style="font-size:12px;color:#9CA3AF;margin:0;">TicketDesk Support System</p>
-                  </td></tr>
-                </table>
-              </td></tr>
-            </table>
-          </body></html>
-        `;
-
-        sendEmail(
-          info.engineerEmail,
-          `🔄 Ticket Reopened #${ticketId} — ${ticket.Title}`,
-          engineerHTML,
-          'TICKET_REOPENED',
-          ticketId,
-          info.engineerName,
-          'Engineer'
-        ).catch(err => console.error('Reopen email error:', err));
-      }
+      // Send reopen email to engineer using notificationService (non-blocking)
+      const { notifyTicketReopened } = require('../services/notificationService');
+      notifyTicketReopened(ticketId).catch(err => {
+        console.error('⚠️ Reopen email warning (non-blocking):', err.message);
+      });
 
       return buildAndSendResponse(res, 'warning', '🔄', 'Ticket Reopened', `Ticket #${ticketId} has been reopened. Our team will work on it again shortly.`);
     }
@@ -957,5 +970,25 @@ function buildAndSendResponse(res, type, emoji, title, message) {
 
   res.send(html);
 }
+
+// ============================================================================
+// ADMIN: POST /api/tickets/:ticketId/test-reopen-email
+// Manual trigger for reopened email (for testing/debugging)
+// ============================================================================
+router.post('/:ticketId/test-reopen-email', verifyToken, authorize(['Admin']), 
+  async (req, res) => {
+    try {
+      const { ticketId } = req.params;
+      
+      const { notifyTicketReopened } = require('../services/notificationService');
+      await notifyTicketReopened(ticketId);
+      
+      res.json({ success: true, message: `Reopened email triggered for ticket #${ticketId}` });
+    } catch (err) {
+      console.error('Test reopen email error:', err);
+      res.status(500).json({ success: false, message: 'Failed to trigger reopened email', error: err.message });
+    }
+  }
+);
 
 module.exports = router;

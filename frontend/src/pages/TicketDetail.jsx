@@ -348,6 +348,7 @@ export default function TicketDetail() {
                 <option value="2">→ In Progress</option>
                 <option value="3">→ On Hold</option>
                 <option value="4">→ Resolved</option>
+                <option value="6">🔄 Reopened</option>
                 <option value="5">→ Closed</option>
               </select>
               {updatingStatus && (
@@ -375,6 +376,7 @@ export default function TicketDetail() {
                 <option value="2">In Progress</option>
                 <option value="3">On Hold</option>
                 <option value="4">Resolved</option>
+                <option value="6">🔄 Reopened</option>
                 <option value="5">Closed</option>
               </select>
             </div>

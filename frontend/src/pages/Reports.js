@@ -247,6 +247,67 @@ const Reports = () => {
           )}
         </div>
 
+        <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)', marginBottom: '28px' }}>
+          <div style={{ padding: '20px 24px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ color: '#06B6D4' }}>🏢</span>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B', margin: 0 }}>Top Five Company Tickets</h3>
+          </div>
+
+          {dashboardStats.length > 0 ? (
+            <>
+              <div className="manager-desktop-table">
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px', tableLayout: 'fixed' }}>
+                  <thead>
+                    <tr style={{ background: '#F8FAFC', borderBottom: '1px solid #E2E8F0' }}>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em', width: '50px' }}>SR.</th>
+                      <th style={{ padding: '12px 12px', textAlign: 'left', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em', width: '40%' }}>Company</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em', width: '20%' }}>Total</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em', width: '20%' }}>Solved</th>
+                      <th style={{ padding: '12px 8px', textAlign: 'center', fontWeight: '700', color: '#6B7280', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.05em', width: '20%' }}>Remaining</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dashboardStats.slice(0, 5).map((company, idx) => {
+                      const solvedTickets = num(company.ClosedTickets);
+                      const remainingTickets = num(company.OpenTickets) + num(company.OverdueTickets);
+                      return (
+                        <tr key={company.CompanyID || idx} style={{ borderBottom: idx < Math.min(5, dashboardStats.length) - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                          <td style={{ padding: '12px 8px', textAlign: 'center', color: '#374151', fontWeight: '600' }}>{idx + 1}</td>
+                          <td style={{ padding: '12px 12px', color: '#1E293B', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{company.Name}</td>
+                          <td style={{ padding: '12px 8px', textAlign: 'center', color: '#374151', fontWeight: '600' }}>{num(company.TotalTickets)}</td>
+                          <td style={{ padding: '12px 8px', textAlign: 'center' }}>
+                            <span style={{ color: '#4F46E5', fontWeight: '700' }}>{solvedTickets}</span>
+                          </td>
+                          <td style={{ padding: '12px 8px', textAlign: 'center' }}>
+                            <span style={{ color: '#EF4444', fontWeight: '700' }}>{remainingTickets}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="manager-mobile-cards">
+                {dashboardStats.slice(0, 5).map((company, idx) => {
+                  const solvedTickets = num(company.ClosedTickets);
+                  const remainingTickets = num(company.OpenTickets) + num(company.OverdueTickets);
+                  return (
+                    <div key={`company-mobile-${company.CompanyID || idx}`} className="manager-mobile-card">
+                      <div style={{ fontWeight: 700, color: '#1E293B', marginBottom: 8 }}>#{idx + 1} {company.Name}</div>
+                      <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Total: {num(company.TotalTickets)}</div>
+                      <div style={{ fontSize: 12, color: '#4F46E5', fontWeight: 700, marginBottom: 4 }}>Solved: {solvedTickets}</div>
+                      <div style={{ fontSize: 12, color: '#EF4444', fontWeight: 700 }}>Remaining: {remainingTickets}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          ) : (
+            <div style={{ padding: '40px 24px', textAlign: 'center', color: '#9CA3AF', fontSize: '14px' }}>No company data available</div>
+          )}
+        </div>
+
         <div style={{ background: '#fff', border: '1px solid #E2E8F0', borderRadius: '12px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.04)' }}>
           <div style={{ padding: '20px 24px', borderBottom: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span style={{ color: '#4F46E5' }}>{Icon.recent}</span>
