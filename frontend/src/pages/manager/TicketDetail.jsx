@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
-import api from '../services/api';
-import { STATUS_STEPS, FRIENDLY_STATUS } from '../constants/statusConfig';
-import CSATRating from '../components/CSATRating';
-import { checkCanRate } from '../services/csatService';
+import useAuth from '../../hooks/useAuth';
+import api from '../../services/api';
+import { STATUS_STEPS, FRIENDLY_STATUS } from '../../constants/statusConfig';
+import CSATRating from '../../components/CSATRating';
+import { checkCanRate } from '../../services/csatService';
 
 const PRIORITY_COLORS = {
   'Critical': { bg:'#FEE2E2', color:'#991B1B' },

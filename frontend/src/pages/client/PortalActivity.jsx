@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+﻿import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
 
@@ -44,8 +44,8 @@ export default function PortalActivity() {
           <h1 className="portal-page-title">All Recent Activity</h1>
           <p className="portal-page-sub">Showing complete activity history for your company tickets</p>
         </div>
-        <button className="portal-btn-primary" onClick={() => navigate('/portal')}>
-          ← Back to Dashboard
+        <button className="portal-btn-primary" onClick={() => navigate('/client')}>
+          â† Back to Dashboard
         </button>
       </div>
 
@@ -65,7 +65,7 @@ export default function PortalActivity() {
               return (
                 <div
                   key={`${item.LogID || idx}-${item.CreatedAt || ''}`}
-                  onClick={() => ticketId && navigate(`/portal/tickets/${ticketId}`)}
+                  onClick={() => ticketId && navigate(`/client/tickets/${ticketId}`)}
                   style={{
                     display: 'flex',
                     alignItems: 'flex-start',
@@ -119,3 +119,4 @@ export default function PortalActivity() {
     </div>
   );
 }
+

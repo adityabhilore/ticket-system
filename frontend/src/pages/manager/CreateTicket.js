@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import ticketService from '../services/ticketService';
-import api from '../services/api';
-import { showError } from '../utils/helpers';
-import '../styles/main.css';
+import { useAuth } from '../../hooks/useAuth';
+import ticketService from '../../services/ticketService';
+import api from '../../services/api';
+import { showError } from '../../utils/helpers';
+import '../../styles/main.css';
 
 const emptyAttachment = {
   fileName: '',

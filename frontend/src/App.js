@@ -10,27 +10,29 @@ import './styles/admin.css';
 
 // Pages
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard';
-import TicketList from './pages/TicketList.jsx';
-import CreateTicket from './pages/CreateTicket';
-import TicketDetail from './pages/TicketDetail.jsx';
-import TicketActivityLog from './pages/TicketActivityLog';
-import Overdue from './pages/Overdue';
-import Reports from './pages/Reports';
-import Notifications from './pages/Notifications';
-import ClientNotifications from './pages/ClientNotifications';
-import Messages from './pages/Messages';
-import Settings from './pages/Settings';
 
-// Portal Pages
-import PortalLayout from './pages/portal/PortalLayout';
-import PortalDashboard from './pages/portal/PortalDashboard';
-import PortalTickets from './pages/portal/PortalTickets';
-import PortalTicketDetail from './pages/portal/PortalTicketDetail';
-import PortalNewTicket from './pages/portal/PortalNewTicket';
-import PortalReports from './pages/portal/PortalReports';
-import PortalProfile from './pages/portal/PortalProfile';
-import PortalActivity from './pages/portal/PortalActivity';
+// Manager/Engineer Pages
+import Dashboard from './pages/manager/Dashboard';
+import TicketList from './pages/manager/TicketList.jsx';
+import CreateTicket from './pages/manager/CreateTicket';
+import TicketDetail from './pages/manager/TicketDetail.jsx';
+import TicketActivityLog from './pages/manager/TicketActivityLog';
+import Overdue from './pages/manager/Overdue';
+import Reports from './pages/manager/Reports';
+import Notifications from './pages/manager/Notifications';
+import Messages from './pages/manager/Messages.jsx';
+import Settings from './pages/manager/Settings';
+
+// Client Pages
+import ClientNotifications from './pages/client/ClientNotifications';
+import PortalLayout from './pages/client/PortalLayout';
+import PortalDashboard from './pages/client/PortalDashboard';
+import PortalTickets from './pages/client/PortalTickets';
+import PortalTicketDetail from './pages/client/PortalTicketDetail';
+import PortalNewTicket from './pages/client/PortalNewTicket';
+import PortalReports from './pages/client/PortalReports';
+import PortalProfile from './pages/client/PortalProfile';
+import PortalActivity from './pages/client/PortalActivity';
 
 // Admin Pages
 import AdminLayout from './pages/admin/AdminLayout';
@@ -54,7 +56,7 @@ function RoleHomeRedirect() {
   const { user } = useAuth();
 
   if (user?.role === 'Admin') return <Navigate to="/admin" replace />;
-  if (user?.role === 'Client') return <Navigate to="/portal" replace />;
+  if (user?.role === 'Client') return <Navigate to="/client" replace />;
   return <Navigate to="/dashboard" replace />;
 }
 
@@ -98,7 +100,7 @@ function App() {
 
           {/* Client Portal - separate simple UI with nested routes */}
           <Route
-            path="/portal"
+            path="/client"
             element={
               <ProtectedRoute requiredRoles={['Client']}>
                 <PortalLayout />

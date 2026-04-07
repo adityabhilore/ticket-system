@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import ticketService from '../services/ticketService';
-import { showError } from '../utils/helpers';
-import '../styles/main.css';
+import ticketService from '../../services/ticketService';
+import { showError } from '../../utils/helpers';
+import '../../styles/main.css';
 
 const Overdue = () => {
   const [tickets, setTickets] = useState([]);

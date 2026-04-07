@@ -14,11 +14,11 @@ import {
   BarChart,
   Bar,
 } from 'recharts';
-import useAuth from '../hooks/useAuth';
-import reportService from '../services/reportService';
-import ticketService from '../services/ticketService';
-import { showError } from '../utils/helpers';
-import '../styles/main.css';
+import useAuth from '../../hooks/useAuth';
+import reportService from '../../services/reportService';
+import ticketService from '../../services/ticketService';
+import { showError } from '../../utils/helpers';
+import '../../styles/main.css';
 
 const STATUS_COLORS = {
   Open: '#EF4444',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
@@ -7,44 +7,44 @@ const PRIORITIES = [
   {
     id: '1', name: 'Critical', dot: '#EF4444',
     bg: '#FEF2F2', border: '#FECACA', color: '#991B1B',
-    sla: '4 hours', icon: '●',
+    sla: '4 hours', icon: 'â—',
     desc: 'Service unavailable or severe business impact',
     example: 'e.g. Login unavailable, key service interruption',
   },
   {
     id: '2', name: 'High', dot: '#F59E0B',
     bg: '#FFF7ED', border: '#FED7AA', color: '#9A3412',
-    sla: '8 hours', icon: '●',
+    sla: '8 hours', icon: 'â—',
     desc: 'Major feature issue with limited workaround',
     example: 'e.g. Reports failing, workflow blocked for users',
   },
   {
     id: '3', name: 'Medium', dot: '#EAB308',
     bg: '#FEFCE8', border: '#FEF08A', color: '#713F12',
-    sla: '24 hours', icon: '●',
+    sla: '24 hours', icon: 'â—',
     desc: 'Minor issue with manageable impact',
     example: 'e.g. UI inconsistency, slow response, small calculation issue',
   },
   {
     id: '4', name: 'Low', dot: '#10B981',
     bg: '#F0FDF4', border: '#BBF7D0', color: '#166534',
-    sla: '72 hours', icon: '●',
+    sla: '72 hours', icon: 'â—',
     desc: 'General help request or enhancement suggestion',
     example: 'e.g. Export guidance, improvement request',
   },
 ];
 
 const CATEGORIES = [
-  { id: 'login', name: 'Login / Access Issue', icon: '🔐', color: '#4F46E5', tips: ['What error message appears?', 'Single user or multiple users?', 'When did it start?'] },
-  { id: 'payment', name: 'Payment / Billing Issue', icon: '💳', color: '#7C3AED', tips: ['Transaction ID?', 'Payment method used?', 'Expected vs actual amount?'] },
-  { id: 'reports', name: 'Reports / Analytics Issue', icon: '📊', color: '#0EA5E9', tips: ['Which report failed?', 'Date range selected?', 'Download or view issue?'] },
-  { id: 'performance', name: 'Slow Performance', icon: '🐢', color: '#F59E0B', tips: ['Which page is slow?', 'Approximate load time?', 'Happens always or sometimes?'] },
-  { id: 'data', name: 'Data Mismatch / Missing Data', icon: '🗂️', color: '#059669', tips: ['What data is missing?', 'Any affected record IDs?', 'Expected result?'] },
-  { id: 'permission', name: 'Permission / Role Issue', icon: '🛡️', color: '#DC2626', tips: ['Which user/role?', 'What action is blocked?', 'Screenshot of error?'] },
-  { id: 'integration', name: 'Integration / API Issue', icon: '🔌', color: '#2563EB', tips: ['Which integration?', 'Error response/code?', 'When did it last work?'] },
-  { id: 'feature', name: 'Feature Request', icon: '💡', color: '#7C3AED', tips: ['What problem does it solve?', 'Who needs this?', 'What should the workflow be?'] },
-  { id: 'help', name: 'General Help', icon: '📝', color: '#0EA5E9', tips: ['What are you trying to do?', 'Where are you stuck?', 'What have you tried?'] },
-  { id: 'other', name: 'Other (Custom Issue Type)', icon: '➕', color: '#6B7280', tips: ['Describe the issue type in your own words', 'Include impacted area and urgency', 'Add any useful references'] },
+  { id: 'login', name: 'Login / Access Issue', icon: 'ðŸ”', color: '#4F46E5', tips: ['What error message appears?', 'Single user or multiple users?', 'When did it start?'] },
+  { id: 'payment', name: 'Payment / Billing Issue', icon: 'ðŸ’³', color: '#7C3AED', tips: ['Transaction ID?', 'Payment method used?', 'Expected vs actual amount?'] },
+  { id: 'reports', name: 'Reports / Analytics Issue', icon: 'ðŸ“Š', color: '#0EA5E9', tips: ['Which report failed?', 'Date range selected?', 'Download or view issue?'] },
+  { id: 'performance', name: 'Slow Performance', icon: 'ðŸ¢', color: '#F59E0B', tips: ['Which page is slow?', 'Approximate load time?', 'Happens always or sometimes?'] },
+  { id: 'data', name: 'Data Mismatch / Missing Data', icon: 'ðŸ—‚ï¸', color: '#059669', tips: ['What data is missing?', 'Any affected record IDs?', 'Expected result?'] },
+  { id: 'permission', name: 'Permission / Role Issue', icon: 'ðŸ›¡ï¸', color: '#DC2626', tips: ['Which user/role?', 'What action is blocked?', 'Screenshot of error?'] },
+  { id: 'integration', name: 'Integration / API Issue', icon: 'ðŸ”Œ', color: '#2563EB', tips: ['Which integration?', 'Error response/code?', 'When did it last work?'] },
+  { id: 'feature', name: 'Feature Request', icon: 'ðŸ’¡', color: '#7C3AED', tips: ['What problem does it solve?', 'Who needs this?', 'What should the workflow be?'] },
+  { id: 'help', name: 'General Help', icon: 'ðŸ“', color: '#0EA5E9', tips: ['What are you trying to do?', 'Where are you stuck?', 'What have you tried?'] },
+  { id: 'other', name: 'Other (Custom Issue Type)', icon: 'âž•', color: '#6B7280', tips: ['Describe the issue type in your own words', 'Include impacted area and urgency', 'Add any useful references'] },
 ];
 
 const COMMON_ISSUES = [
@@ -194,7 +194,7 @@ export default function PortalNewTicket() {
         <div style={{width:'80px',height:'80px',background:selectedCat?selectedCat.color+'20':'#D1FAE5',
           borderRadius:'50%',display:'flex',alignItems:'center',
           justifyContent:'center',fontSize:'40px',margin:'0 auto 24px',animation:'pulse 2s ease-in-out infinite'}}>
-          ✅
+          âœ…
         </div>
         <div style={{fontSize:'24px',fontWeight:'700',color:'#065F46',
           marginBottom:'8px'}}>Request Submitted</div>
@@ -215,7 +215,7 @@ export default function PortalNewTicket() {
           </strong>
         </div>
         <div style={{display:'flex',gap:'10px',justifyContent:'center'}}>
-          <button onClick={()=>navigate('/portal/tickets')}
+          <button onClick={()=>navigate('/client/tickets')}
             style={{padding:'10px 20px',background:'#4F46E5',color:'#fff',
               border:'none',borderRadius:'8px',fontSize:'13px',fontWeight:'700',
               cursor:'pointer',fontFamily:'inherit',
@@ -238,7 +238,7 @@ export default function PortalNewTicket() {
       minHeight:'100vh',background:'#F8FAFC'}}>
       <style>{css}</style>
 
-      {/* ── PAGE HEADER ── */}
+      {/* â”€â”€ PAGE HEADER â”€â”€ */}
       <div style={{background:'linear-gradient(135deg, #1E1B4B 0%, #4C1D95 60%, #4F46E5 100%)',
         padding:'24px 36px',borderRadius:'12px',margin:'24px',
         border:'1px solid rgba(255,255,255,0.2)',
@@ -246,7 +246,7 @@ export default function PortalNewTicket() {
         <div style={{display:'flex',alignItems:'center',
           justifyContent:'space-between',gap:'16px',marginBottom:'16px'}}>
           <div>
-            <button onClick={()=>navigate('/portal/tickets')}
+            <button onClick={()=>navigate('/client/tickets')}
               style={{display:'flex',alignItems:'center',gap:'6px',
                 background:'none',border:'none',color:'rgba(255,255,255,0.8)',
                 fontSize:'13px',fontWeight:'500',cursor:'pointer',
@@ -295,11 +295,11 @@ export default function PortalNewTicket() {
         </div>
       </div>
 
-      {/* ── CONTENT ── */}
+      {/* â”€â”€ CONTENT â”€â”€ */}
       <div style={{padding:'24px 36px',display:'grid',
         gridTemplateColumns:'1fr 320px',gap:'20px',alignItems:'start'}}>
 
-        {/* LEFT — Form */}
+        {/* LEFT â€” Form */}
         <div style={{background:'#fff',border:'1px solid #E2E8F0',
           borderRadius:'12px',padding:'24px',
           boxShadow:'0 1px 3px rgba(0,0,0,0.06)',animation:'fadeIn 0.3s ease'}}>
@@ -309,7 +309,7 @@ export default function PortalNewTicket() {
               color:'#991B1B',borderRadius:'8px',padding:'10px 14px',
               fontSize:'13px',marginBottom:'20px',display:'flex',
               alignItems:'center',gap:'8px'}}>
-              <span style={{fontSize:'16px'}}>⚠️</span> {error}
+              <span style={{fontSize:'16px'}}>âš ï¸</span> {error}
             </div>
           )}
 
@@ -356,7 +356,7 @@ export default function PortalNewTicket() {
               )}
 
               <div style={{fontSize:'11px',color:'#9CA3AF'}}>
-                Can’t find a matching type? Choose <strong>Other</strong> and enter your own.
+                Canâ€™t find a matching type? Choose <strong>Other</strong> and enter your own.
               </div>
             </div>
 
@@ -376,7 +376,7 @@ export default function PortalNewTicket() {
               </div>
               {products.length === 0 && (
                 <div style={{fontSize:'11px',color:'#9CA3AF',marginTop:'5px'}}>
-                  💡 No products assigned yet. Contact your account manager if you need access to additional products.
+                  ðŸ’¡ No products assigned yet. Contact your account manager if you need access to additional products.
                 </div>
               )}
             </div>
@@ -415,7 +415,7 @@ export default function PortalNewTicket() {
               <div style={{fontSize:'11px',fontWeight:'700',color:'#6B7280',
                 marginBottom:'8px',textTransform:'uppercase'}}>Quick templates:</div>
               <div style={{fontSize:'11px',color:'#9CA3AF',marginBottom:'8px'}}>
-                Optional — pick one to autofill title, or type your own title manually.
+                Optional â€” pick one to autofill title, or type your own title manually.
               </div>
               <div style={{display:'flex',flexWrap:'wrap',gap:'6px'}}>
                 {COMMON_ISSUES.map((issue,i)=>(
@@ -454,7 +454,7 @@ export default function PortalNewTicket() {
                 onBlur={e=>e.target.style.borderColor=form.description?.length >= 10?'#10B981':'#E2E8F0'}/>
               <div style={{display:'flex',justifyContent:'space-between',
                 marginTop:'5px',fontSize:'11px',color:'#9CA3AF'}}>
-                <span>{form.description?.length >= 100 ? '✅ Great!' : form.description?.length >= 30 ? '👍 Good' : '👉 Keep typing'}</span>
+                <span>{form.description?.length >= 100 ? 'âœ… Great!' : form.description?.length >= 30 ? 'ðŸ‘ Good' : 'ðŸ‘‰ Keep typing'}</span>
                 <span style={{color:form.description?.length >= 100?'#10B981':form.description?.length >= 30?'#EAB308':'#9CA3AF'}}>
                   {form.description?.length || 0} chars
                 </span>
@@ -492,7 +492,7 @@ export default function PortalNewTicket() {
                     paddingRight:'36px'}}>
                   {PRIORITIES.map(p=>(
                     <option key={p.id} value={p.id}>
-                      {p.icon} {p.name} — {p.sla} response
+                      {p.icon} {p.name} â€” {p.sla} response
                     </option>
                   ))}
                 </select>
@@ -546,7 +546,7 @@ export default function PortalNewTicket() {
             {/* Submit */}
             <div style={{display:'flex',gap:'10px',justifyContent:'flex-end',
               paddingTop:'16px',borderTop:'1px solid #F1F5F9'}}>
-              <button type="button" onClick={()=>navigate('/portal/tickets')}
+              <button type="button" onClick={()=>navigate('/client/tickets')}
                 disabled={loading}
                 style={{padding:'11px 20px',background:'#F3F4F6',color:'#374151',
                   border:'1px solid #E5E7EB',borderRadius:'8px',fontSize:'13px',
@@ -566,7 +566,7 @@ export default function PortalNewTicket() {
           </form>
         </div>
 
-        {/* RIGHT — Smart sidebar */}
+        {/* RIGHT â€” Smart sidebar */}
         <div style={{display:'flex',flexDirection:'column',gap:'12px',
           animation:'fadeIn 0.3s ease 0.1s both'}}>
 
@@ -579,7 +579,7 @@ export default function PortalNewTicket() {
               {tipsList.map((tip,i)=>(
                 <div key={i} style={{display:'flex',alignItems:'flex-start',
                   gap:'6px',marginBottom:'6px',fontSize:'12px',color:'#374151'}}>
-                  <span style={{flexShrink:0,marginTop:'1px',color:tipsThemeColor}}>✓</span>
+                  <span style={{flexShrink:0,marginTop:'1px',color:tipsThemeColor}}>âœ“</span>
                   <span>{tip}</span>
                 </div>
               ))}
@@ -618,7 +618,7 @@ export default function PortalNewTicket() {
             borderRadius:'12px',padding:'18px',
             boxShadow:'0 1px 3px rgba(0,0,0,0.06)'}}>
             <div style={{fontSize:'14px',fontWeight:'700',color:'#1E293B',
-              marginBottom:'14px'}}>⏱️ Response Times</div>
+              marginBottom:'14px'}}>â±ï¸ Response Times</div>
             {PRIORITIES.map(p=>(
               <div key={p.id} style={{display:'flex',alignItems:'center',
                 gap:'10px',padding:'8px 0',
@@ -640,3 +640,4 @@ export default function PortalNewTicket() {
     </div>
   );
 }
+

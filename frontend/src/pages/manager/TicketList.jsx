@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useAuth from '../hooks/useAuth';
-import api from '../services/api';
+import useAuth from '../../hooks/useAuth';
+import api from '../../services/api';
 
 const STATUS_COLORS = {
   'Open':        { bg:'#D1FAE5', color:'#065F46', dot:'#10B981' },

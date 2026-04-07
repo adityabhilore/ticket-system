@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api';
-import { useAuth } from '../hooks/useAuth';
-import '../styles/notifications.css';
+import api from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
+import '../../styles/notifications.css';
 
 export default function Notifications() {
   const navigate = useNavigate();

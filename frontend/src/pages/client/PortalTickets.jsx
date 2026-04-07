@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import api from '../../services/api';
 
@@ -167,7 +167,7 @@ export default function PortalTickets() {
       minHeight:'100vh',background:'#F8FAFC'}}>
       <style>{css}</style>
 
-      {/* ── TOP HEADER ── */}
+      {/* â”€â”€ TOP HEADER â”€â”€ */}
       <div style={{background:'linear-gradient(135deg, #1E1B4B 0%, #4C1D95 60%, #4F46E5 100%)',
         padding:'24px 36px',position:'sticky',top:0,zIndex:10,
         borderRadius:'12px',margin:'24px',border:'1px solid rgba(255,255,255,0.2)',
@@ -184,7 +184,7 @@ export default function PortalTickets() {
               <strong style={{color:'#FFFFFF'}}>{totalCount || tickets.length}</strong> tickets
             </p>
           </div>
-          <button onClick={()=>navigate('/portal/tickets/new')}
+          <button onClick={()=>navigate('/client/tickets/new')}
             style={{padding:'10px 20px',background:'rgba(255,255,255,0.2)',color:'#fff',
               border:'1px solid rgba(255,255,255,0.3)',borderRadius:'8px',fontSize:'13px',fontWeight:'700',
               cursor:'pointer',fontFamily:'inherit',whiteSpace:'nowrap',
@@ -199,7 +199,7 @@ export default function PortalTickets() {
 
       <div style={{padding:'20px 36px'}}>
 
-        {/* ── FILTER BAR ── */}
+        {/* â”€â”€ FILTER BAR â”€â”€ */}
         <div style={{background:'#fff',border:'1px solid #E2E8F0',
           borderRadius:'12px',padding:'14px 16px',marginBottom:'12px',
           boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
@@ -230,7 +230,7 @@ export default function PortalTickets() {
                     color:'#6B7280',cursor:'pointer',padding:'0',
                     width:'18px',height:'18px',borderRadius:'50%',
                     fontSize:'12px',display:'flex',alignItems:'center',
-                    justifyContent:'center',lineHeight:'1'}}>×</button>
+                    justifyContent:'center',lineHeight:'1'}}>Ã—</button>
               )}
             </div>
 
@@ -266,10 +266,10 @@ export default function PortalTickets() {
                   color:priority?'#1E293B':'#6B7280',fontWeight:priority?'600':'400',
                   minWidth:'155px',transition:'all 0.15s'}}>
                 <option value="">All Priorities</option>
-                <option value="Critical">🔴 Critical</option>
-                <option value="High">🟠 High</option>
-                <option value="Medium">🟡 Medium</option>
-                <option value="Low">🟢 Low</option>
+                <option value="Critical">ðŸ”´ Critical</option>
+                <option value="High">ðŸŸ  High</option>
+                <option value="Medium">ðŸŸ¡ Medium</option>
+                <option value="Low">ðŸŸ¢ Low</option>
               </select>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                 stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"
@@ -286,10 +286,10 @@ export default function PortalTickets() {
                   borderRadius:'8px',fontSize:'13px',fontFamily:'Inter,sans-serif',
                   outline:'none',background:'#fff',cursor:'pointer',
                   color:'#6B7280',minWidth:'165px',transition:'all 0.15s'}}>
-                <option value="newest">↓ Newest First</option>
-                <option value="oldest">↑ Oldest First</option>
-                <option value="priority">⚡ By Priority</option>
-                <option value="sla">⏱️ By SLA Deadline</option>
+                <option value="newest">â†“ Newest First</option>
+                <option value="oldest">â†‘ Oldest First</option>
+                <option value="priority">âš¡ By Priority</option>
+                <option value="sla">â±ï¸ By SLA Deadline</option>
               </select>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none"
                 stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round"
@@ -325,7 +325,7 @@ export default function PortalTickets() {
                   border:'1px solid #FECACA',borderRadius:'8px',fontSize:'12px',
                   fontWeight:'700',cursor:'pointer',fontFamily:'inherit',
                   whiteSpace:'nowrap',flexShrink:0}}>
-                ✕ Clear
+                âœ• Clear
               </button>
             )}
           </div>
@@ -347,7 +347,7 @@ export default function PortalTickets() {
                   <button onClick={()=>setTab('')}
                     style={{background:'none',border:'none',color:'#4F46E5',
                       cursor:'pointer',padding:'0',fontSize:'14px',
-                      lineHeight:'1',fontWeight:'700'}}>×</button>
+                      lineHeight:'1',fontWeight:'700'}}>Ã—</button>
                 </span>
               )}
               {priority&&(
@@ -358,20 +358,20 @@ export default function PortalTickets() {
                   <button onClick={()=>setPriority('')}
                     style={{background:'none',border:'none',color:'#92400E',
                       cursor:'pointer',padding:'0',fontSize:'14px',
-                      lineHeight:'1',fontWeight:'700'}}>×</button>
+                      lineHeight:'1',fontWeight:'700'}}>Ã—</button>
                 </span>
               )}
             </div>
           )}
         </div>
 
-        {/* ── EMPTY STATE ── */}
+        {/* â”€â”€ EMPTY STATE â”€â”€ */}
         {filtered.length===0&&(
           <div style={{background:'#fff',border:'1px solid #E2E8F0',
             borderRadius:'12px',padding:'64px 24px',textAlign:'center',
             boxShadow:'0 1px 3px rgba(0,0,0,0.04)',animation:'fadeIn 0.3s ease'}}>
             <div style={{fontSize:'52px',marginBottom:'16px'}}>
-              {tickets.length===0?'🎫':'🔍'}
+              {tickets.length===0?'ðŸŽ«':'ðŸ”'}
             </div>
             <div style={{fontSize:'18px',fontWeight:'700',color:'#1E293B',
               marginBottom:'8px',fontFamily:'Inter,sans-serif'}}>
@@ -383,7 +383,7 @@ export default function PortalTickets() {
                 :'Try adjusting or clearing your search filters'}
             </div>
             {tickets.length===0?(
-              <button onClick={()=>navigate('/portal/tickets/new')}
+              <button onClick={()=>navigate('/client/tickets/new')}
                 style={{padding:'11px 22px',background:'#4F46E5',color:'#fff',
                   border:'none',borderRadius:'8px',fontSize:'13px',fontWeight:'700',
                   cursor:'pointer',fontFamily:'inherit',
@@ -401,7 +401,7 @@ export default function PortalTickets() {
           </div>
         )}
 
-        {/* ── LIST VIEW ── */}
+        {/* â”€â”€ LIST VIEW â”€â”€ */}
         {view==='list'&&filtered.length>0&&(
           <div style={{background:'#fff',border:'1px solid #E2E8F0',
             borderRadius:'12px',overflow:'hidden',
@@ -435,7 +435,7 @@ export default function PortalTickets() {
                       {t.Title}
                     </div>
                     <div style={{fontSize:'12px',color:'#9CA3AF'}}>
-                      {FRIENDLY[t.StatusName]} ·{' '}
+                      {FRIENDLY[t.StatusName]} Â·{' '}
                       {new Date(t.CreatedAt).toLocaleDateString('en-IN',{
                         day:'numeric',month:'short',year:'numeric'})}
                     </div>
@@ -445,7 +445,7 @@ export default function PortalTickets() {
                       <span style={{background:sla.bg,color:sla.color,
                         padding:'3px 9px',borderRadius:'999px',
                         fontSize:'11px',fontWeight:'700'}}>
-                        ⏱ {sla.text}
+                        â± {sla.text}
                       </span>
                     )}
                     <span style={{background:pc.bg,color:pc.color,
@@ -469,7 +469,7 @@ export default function PortalTickets() {
           </div>
         )}
 
-        {/* ── GRID VIEW ── */}
+        {/* â”€â”€ GRID VIEW â”€â”€ */}
         {view==='grid'&&filtered.length>0&&(
           <div style={{display:'grid',
             gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',
@@ -497,7 +497,7 @@ export default function PortalTickets() {
                       <span style={{background:sla.bg,color:sla.color,
                         padding:'2px 8px',borderRadius:'999px',
                         fontSize:'11px',fontWeight:'700'}}>
-                        ⏱ {sla.text}
+                        â± {sla.text}
                       </span>
                     )}
                   </div>
@@ -561,3 +561,4 @@ export default function PortalTickets() {
     </div>
   );
 }
+

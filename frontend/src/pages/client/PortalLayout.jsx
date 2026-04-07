@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import useUnreadCount from '../../hooks/useUnreadCount';
@@ -36,7 +36,7 @@ export default function PortalLayout() {
         onClick={() => setMobileOpen((prev) => !prev)}
         aria-label="Toggle client navigation"
       >
-        ☰
+        â˜°
       </button>
 
       <div

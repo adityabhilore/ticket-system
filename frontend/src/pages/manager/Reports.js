@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import reportService from '../services/reportService';
-import { showError } from '../utils/helpers';
-import '../styles/main.css';
+import reportService from '../../services/reportService';
+import { showError } from '../../utils/helpers';
+import '../../styles/main.css';
 
 const Icon = {
   performance: (

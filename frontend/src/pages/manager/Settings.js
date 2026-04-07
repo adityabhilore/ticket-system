@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import useAuth from '../hooks/useAuth';
-import authService from '../services/authService';
-import userService from '../services/userService';
+import useAuth from '../../hooks/useAuth';
+import authService from '../../services/authService';
+import userService from '../../services/userService';
 
 export default function Settings() {
   const { user, updateUser } = useAuth();

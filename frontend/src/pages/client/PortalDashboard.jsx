@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
@@ -129,14 +129,14 @@ export default function PortalDashboard() {
       <div className="portal-page-header">
         <div>
           <h1 className="portal-page-title">
-            Welcome back, {user?.name}! 👋
+            Welcome back, {user?.name}! ðŸ‘‹
           </h1>
           <p className="portal-page-sub">
             Support overview for <strong>{user?.companyName || 'your company'}</strong>
           </p>
         </div>
         <button className="portal-btn-primary"
-          onClick={() => navigate('/portal/tickets/new')}>
+          onClick={() => navigate('/client/tickets/new')}>
           + Raise New Ticket
         </button>
       </div>
@@ -151,7 +151,7 @@ export default function PortalDashboard() {
           { label:'Resolved / Closed', value:(stats.resolved + stats.closed), sub:'Completed', color:'#6B7280', bgFrom:'#6B7280', bgTo:'#6B7280', filter:'resolved' },
         ].map(card => (
           <div key={card.label} className="portal-stat-card"
-            onClick={() => navigate(`/portal/tickets?status=${card.filter}`)}
+            onClick={() => navigate(`/client/tickets?status=${card.filter}`)}
             style={{
               borderTopColor: card.color,
               background: `linear-gradient(135deg, ${card.bgFrom} 0%, ${card.bgTo} 100%)`,
@@ -180,11 +180,11 @@ export default function PortalDashboard() {
           <div style={{display:'flex',alignItems:'center',
             justifyContent:'space-between',marginBottom:'14px'}}>
             <div style={{fontSize:'15px',fontWeight:'700',color:'#1E293B'}}>
-              Active Tickets — SLA Status
+              Active Tickets â€” SLA Status
             </div>
             <button className="portal-link-btn"
-              onClick={() => navigate('/portal/tickets')}>
-              View all →
+              onClick={() => navigate('/client/tickets')}>
+              View all â†’
             </button>
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
@@ -210,10 +210,10 @@ export default function PortalDashboard() {
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:'13px',fontWeight:'600',color:'#1E293B',
                       whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                      #{ticketId || '-'} — {t.Title}
+                      #{ticketId || '-'} â€” {t.Title}
                     </div>
                     <div style={{fontSize:'11px',color:'#6B7280',marginTop:'2px'}}>
-                      {t.StatusName} · {t.PriorityName}
+                      {t.StatusName} Â· {t.PriorityName}
                     </div>
                   </div>
 
@@ -247,14 +247,14 @@ export default function PortalDashboard() {
               Recent Tickets
             </h3>
             <button className="portal-link-btn"
-              onClick={() => navigate('/portal/tickets')}>
-              View all →
+              onClick={() => navigate('/client/tickets')}>
+              View all â†’
             </button>
           </div>
 
           {tickets.length === 0 ? (
             <div className="portal-empty-state">
-              <div className="portal-empty-icon">🎫</div>
+              <div className="portal-empty-icon">ðŸŽ«</div>
               <div style={{fontSize:'14px',fontWeight:'600',color:'#1E293B',marginBottom:'4px'}}>
                 No tickets yet
               </div>
@@ -262,7 +262,7 @@ export default function PortalDashboard() {
                 Raise your first support ticket
               </div>
               <button className="portal-btn-primary" style={{fontSize:'12px'}}
-                onClick={() => navigate('/portal/tickets/new')}>
+                onClick={() => navigate('/client/tickets/new')}>
                 Raise Ticket
               </button>
             </div>
@@ -297,7 +297,7 @@ export default function PortalDashboard() {
                       background: PRIORITY_COLORS[t.PriorityName] || '#9CA3AF'}} />
                     <span style={{flex:1,fontSize:'13px',fontWeight:'600',color:'#1E293B',
                       whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                      #{ticketId || '-'} — {t.Title}
+                      #{ticketId || '-'} â€” {t.Title}
                     </span>
                   </div>
                   <div style={{fontSize:'11px',color:'#9CA3AF',display:'flex',justifyContent:'space-between',gap:'8px'}}>
@@ -357,14 +357,14 @@ export default function PortalDashboard() {
           <h3 style={{fontSize:'15px',fontWeight:'700',color:'#1E293B',margin:0}}>
             Recent Activity
           </h3>
-          <button className="portal-link-btn" onClick={() => navigate('/portal/activity')}>
-            View all activity →
+          <button className="portal-link-btn" onClick={() => navigate('/client/activity')}>
+            View all activity â†’
           </button>
         </div>
 
         {activityPreview.length === 0 ? (
           <div style={{textAlign:'center',padding:'20px',color:'#9CA3AF',fontSize:'13px'}}>
-            No activity yet — activity will appear here once tickets are updated
+            No activity yet â€” activity will appear here once tickets are updated
           </div>
         ) : (
           <div style={{display:'flex',flexDirection:'column',gap:'0'}}>
@@ -372,7 +372,7 @@ export default function PortalDashboard() {
               const activityTicketId = item.TicketId || item.TicketID || null;
               return (
               <div key={idx}
-                onClick={() => activityTicketId && navigate(`/portal/tickets/${activityTicketId}`)}
+                onClick={() => activityTicketId && navigate(`/client/tickets/${activityTicketId}`)}
                 style={{display:'flex',alignItems:'flex-start',gap:'12px',padding:'10px 0',
                   borderBottom: idx < activityPreview.length-1 ? '1px solid #F1F5F9' : 'none',
                   cursor: activityTicketId ? 'pointer' : 'default',transition:'all 0.12s'}}

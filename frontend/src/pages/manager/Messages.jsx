@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import api from '../services/api';
-import { useAuth } from '../hooks/useAuth';
-import '../styles/messages.css';
+import api from '../../services/api';
+import { useAuth } from '../../hooks/useAuth';
+import '../../styles/messages.css';
 
 const ROLE_COLORS = {
   Admin: { color: '#DC2626', bg: '#FEF2F2' },

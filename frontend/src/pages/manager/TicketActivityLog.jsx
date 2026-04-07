@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import api from '../services/api';
-import useAuth from '../hooks/useAuth';
+import api from '../../services/api';
+import useAuth from '../../hooks/useAuth';
 
 const timeAgo = (date) => {
   const diff = new Date() - new Date(date);

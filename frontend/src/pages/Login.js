@@ -39,7 +39,7 @@ const Login = () => {
       if (role === 'Admin') {
         navigate('/admin');
       } else if (role === 'Client') {
-        navigate('/portal');
+        navigate('/client');
       } else {
         // Manager and Engineer both go to dashboard
         navigate('/dashboard');
