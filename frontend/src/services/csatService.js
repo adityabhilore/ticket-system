@@ -39,10 +39,12 @@ export const getLowScoreTickets = async (threshold = 3) => {
   return await api.get('/csat/low-scores', { params: { threshold } });
 };
 
-export default {
+const csatService = {
   submitCSATRating,
   checkCanRate,
   getCSATStats,
   getCSATReport,
   getLowScoreTickets,
 };
+
+export default csatService;

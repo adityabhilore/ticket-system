@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
@@ -47,7 +47,7 @@ export default function PortalTicketDetail() {
 
   useEffect(() => { fetchTicket(); }, [fetchTicket]);
 
-  // Live SLA countdown â€” updates every minute
+  // Live SLA countdown – updates every minute
   useEffect(() => {
     if (!ticket?.SLADeadline) return;
     const update = () => {
@@ -109,11 +109,11 @@ export default function PortalTicketDetail() {
     <div className="portal-page">
       <div style={{background:'#FEF2F2',border:'1px solid #FECACA',borderRadius:'10px',
         padding:'24px',textAlign:'center'}}>
-        <div style={{fontSize:'32px',marginBottom:'12px'}}>âŒ</div>
+        <div style={{fontSize:'32px',marginBottom:'12px'}}>❌</div>
         <div style={{fontSize:'16px',fontWeight:'700',color:'#991B1B'}}>{error}</div>
         <button className="portal-btn-secondary" style={{marginTop:'16px'}}
           onClick={() => navigate('/client/tickets')}>
-          â† Back to My Tickets
+          ← Back to My Tickets
         </button>
       </div>
     </div>
@@ -138,7 +138,7 @@ export default function PortalTicketDetail() {
             stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
-          Back to My Tickets
+          ← Back to My Tickets
         </button>
 
         <div style={{display:'flex',alignItems:'flex-start',
@@ -155,7 +155,7 @@ export default function PortalTicketDetail() {
               {ticket?.IsOverdue && (
                 <span style={{background:'#FEE2E2',color:'#991B1B',
                   padding:'3px 10px',borderRadius:'999px',fontSize:'12px',fontWeight:'700'}}>
-                  âš ï¸ Overdue
+                  ⚠️ Overdue
                 </span>
               )}
             </div>
@@ -167,7 +167,7 @@ export default function PortalTicketDetail() {
               Raised on {new Date(ticket?.CreatedAt).toLocaleDateString('en-IN',{
                 day:'numeric',month:'long',year:'numeric'})}
               {ticket?.AssignedTo && (
-                <span> Â· Assigned to <strong>{ticket?.AssignedToName || 'Support Engineer'}</strong></span>
+                <span> · Assigned to <strong>{ticket?.AssignedToName || 'Support Engineer'}</strong></span>
               )}
             </div>
           </div>
@@ -217,7 +217,7 @@ export default function PortalTicketDetail() {
                     color: isDone || isCurrent ? '#fff' : '#9CA3AF',
                     transition:'all 0.3s',
                   }}>
-                    {isDone && !isCurrent ? 'âœ“' : index + 1}
+                    {isDone && !isCurrent ? '✓' : index + 1}
                   </div>
                   <div style={{fontSize:'11px',fontWeight: isCurrent ? '700' : '500',
                     color: isCurrent ? '#4F46E5' : isDone ? '#10B981' : '#9CA3AF',
@@ -244,7 +244,7 @@ export default function PortalTicketDetail() {
       <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:'20px',
         alignItems:'start'}}>
 
-        {/* LEFT â€” Description + Comments */}
+        {/* LEFT – Description + Comments */}
         <div style={{display:'flex',flexDirection:'column',gap:'16px'}}>
 
           {/* Description */}
@@ -308,8 +308,7 @@ export default function PortalTicketDetail() {
                           fontSize:'11px',color:'#9CA3AF',marginTop:'4px',
                           textAlign: isMe ? 'right' : 'left',
                         }}>
-                          {c.UserName || c.userName || 'User'} Â·{' '}
-                          {new Date(c.CreatedAt || c.createdAt).toLocaleDateString('en-IN',{
+                          {c.UserName || c.userName || 'User'} · {new Date(c.CreatedAt || c.createdAt).toLocaleDateString('en-IN',{
                             day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}
                         </div>
                       </div>
@@ -319,7 +318,7 @@ export default function PortalTicketDetail() {
               </div>
             )}
 
-            {/* Add comment â€” only if not closed */}
+            {/* Add comment – only if not closed */}
             {ticket?.StatusName !== 'Closed' ? (
               <form onSubmit={handleComment}>
                 <div style={{borderTop:'1px solid #F1F5F9',paddingTop:'16px'}}>
@@ -396,7 +395,7 @@ export default function PortalTicketDetail() {
 
         </div>
 
-        {/* RIGHT â€” Ticket info sidebar */}
+        {/* RIGHT – Ticket info sidebar */}
         <div style={{background:'#fff',border:'1px solid #E2E8F0',
           borderLeft:'4px solid #4F46E5',
           borderRadius:'12px',padding:'20px',

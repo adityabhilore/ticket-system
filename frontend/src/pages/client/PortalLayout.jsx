@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import useUnreadCount from '../../hooks/useUnreadCount';
@@ -36,7 +36,7 @@ export default function PortalLayout() {
         onClick={() => setMobileOpen((prev) => !prev)}
         aria-label="Toggle client navigation"
       >
-        â˜°
+        ☰
       </button>
 
       <div
@@ -66,19 +66,19 @@ export default function PortalLayout() {
         <div className="admin-divider" />
 
         <nav className="admin-nav">
-          <NavLink to="/portal" end className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
+          <NavLink to="/client" end className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
             {Icons.dashboard}<span>Dashboard</span>
           </NavLink>
-          <NavLink to="/portal/tickets" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
+          <NavLink to="/client/tickets" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
             {Icons.tickets}<span>My Tickets</span>
           </NavLink>
-          <NavLink to="/portal/tickets/new" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
+          <NavLink to="/client/tickets/new" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
             {Icons.raise}<span>Raise Ticket</span>
           </NavLink>
-          <NavLink to="/portal/reports" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
+          <NavLink to="/client/reports" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
             {Icons.reports}<span>Reports</span>
           </NavLink>
-          <NavLink to="/portal/messages" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
+          <NavLink to="/client/messages" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
             {Icons.messages}<span style={{flex:1}}>Messages</span>
             {unreadCount > 0 && (
               <span style={{background:'#EF4444',color:'#fff',fontSize:'10px',
@@ -88,10 +88,10 @@ export default function PortalLayout() {
               </span>
             )}
           </NavLink>
-          <NavLink to="/portal/notifications" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
+          <NavLink to="/client/notifications" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
             {Icons.notifications}<span>Notifications</span>
           </NavLink>
-          <NavLink to="/portal/profile" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
+          <NavLink to="/client/profile" className={({ isActive }) => isActive ? 'admin-nav-item active' : 'admin-nav-item'} onClick={() => setMobileOpen(false)}>
             {Icons.profile}<span>My Profile</span>
           </NavLink>
         </nav>

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
 
@@ -84,15 +84,15 @@ export default function PortalProfile() {
           <div style={{display:'flex',flexDirection:'column',gap:'16px',marginTop:'12px'}}>
             <div>
               <div style={{fontSize:'11px',fontWeight:'700',color:'#9CA3AF',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:'4px'}}>Full Name</div>
-              <div style={{fontSize:'14px',color:'#1E293B',fontWeight:'500'}}>{user?.name || 'â€”'}</div>
+              <div style={{fontSize:'14px',color:'#1E293B',fontWeight:'500'}}>{user?.name || '–'}</div>
             </div>
             <div>
               <div style={{fontSize:'11px',fontWeight:'700',color:'#9CA3AF',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:'4px'}}>Email Address</div>
-              <div style={{fontSize:'14px',color:'#1E293B',fontWeight:'500'}}>{user?.email || 'â€”'}</div>
+              <div style={{fontSize:'14px',color:'#1E293B',fontWeight:'500'}}>{user?.email || '–'}</div>
             </div>
             <div>
               <div style={{fontSize:'11px',fontWeight:'700',color:'#9CA3AF',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:'4px'}}>Company</div>
-              <div style={{fontSize:'14px',color:'#1E293B',fontWeight:'500'}}>{companyName || 'â€”'}</div>
+              <div style={{fontSize:'14px',color:'#1E293B',fontWeight:'500'}}>{companyName || '–'}</div>
             </div>
             <div>
               <div style={{fontSize:'11px',fontWeight:'700',color:'#9CA3AF',textTransform:'uppercase',letterSpacing:'0.5px',marginBottom:'4px'}}>Account Type</div>
@@ -147,7 +147,7 @@ export default function PortalProfile() {
               </button>
               <button type="submit" className="portal-btn-primary"
                 disabled={loading}>
-                {loading ? 'Updating...' : 'ðŸ’¾ Update Password'}
+                {loading ? 'Updating...' : ' Update Password'}
               </button>
             </div>
           </form>

@@ -1,12 +1,10 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../services/api';
-import { useAuth } from '../../hooks/useAuth';
 import '../../styles/notifications.css';
 
 export default function ClientNotifications() {
   const navigate = useNavigate();
-  const { user } = useAuth();
   const PAGE_SIZE = 25;
 
   // Tab state
@@ -38,6 +36,7 @@ export default function ClientNotifications() {
     if (activeTab === 'comments') {
       fetchNotifications(1, false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   // Fetch email notifications
@@ -45,6 +44,7 @@ export default function ClientNotifications() {
     if (activeTab === 'emails') {
       fetchEmailNotifications(1, false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   const fetchNotifications = async (targetPage = 1, append = false) => {
@@ -152,9 +152,9 @@ export default function ClientNotifications() {
 
   const getStatusBadge = (status) => {
     const styles = {
-      SENT: { color: '#10B981', bg: '#DCFCE7', label: 'âœ“ Sent' },
-      FAILED: { color: '#DC2626', bg: '#FEE2E2', label: 'âœ— Failed' },
-      PENDING: { color: '#F59E0B', bg: '#FEF3C7', label: 'â³ Pending' },
+      SENT: { color: '#10B981', bg: '#DCFCE7', label: '✓ Sent' },
+      FAILED: { color: '#DC2626', bg: '#FEE2E2', label: '✗ Failed' },
+      PENDING: { color: '#F59E0B', bg: '#FEF3C7', label: '⏳ Pending' },
     };
     return styles[status] || { color: '#6B7280', bg: '#F3F4F6', label: status };
   };
@@ -239,7 +239,7 @@ export default function ClientNotifications() {
             transition: 'all 0.2s',
           }}
         >
-          ðŸ’¬ Comments ({notifications.length})
+         Comments ({notifications.length})
         </button>
 
         <button
@@ -259,7 +259,7 @@ export default function ClientNotifications() {
             transition: 'all 0.2s',
           }}
         >
-          ðŸ“§ Emails ({emailTotalCount})
+          Emails ({emailTotalCount})
         </button>
       </div>
 
@@ -412,7 +412,7 @@ export default function ClientNotifications() {
                                 : 'Just now'}
                             </span>
                             {!notif.IsRead && (
-                              <span style={{ color: '#2563EB', fontWeight: '600' }}>â— New</span>
+                              <span style={{ color: '#2563EB', fontWeight: '600' }}>● New</span>
                             )}
                           </div>
                         </div>
@@ -568,7 +568,7 @@ export default function ClientNotifications() {
                           flexShrink: 0,
                         }}
                       >
-                        {email.Status === 'SENT' ? 'âœ“' : email.Status === 'FAILED' ? 'âœ—' : 'â³'}
+                        {email.Status === 'SENT' ? '✓' : email.Status === 'FAILED' ? '✗' : '⏳'}
                       </div>
 
                       <div style={{ flex: 1 }}>
@@ -603,7 +603,7 @@ export default function ClientNotifications() {
                               </span>
                             </div>
                             <div style={{ fontSize: '12px', color: '#4B5563', marginBottom: '6px' }}>
-                              ðŸ“§ To: <strong>{email.RecipientEmail}</strong> ({email.RecipientRole})
+                              📧 To: <strong>{email.RecipientEmail}</strong> ({email.RecipientRole})
                             </div>
                             <div style={{ fontSize: '12px', color: '#4B5563', marginBottom: '4px' }}>
                               Subject: {email.Subject}

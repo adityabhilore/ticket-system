@@ -55,6 +55,74 @@ router.get('/engineers', verifyToken, authorize(['Manager']), async (req, res) =
 });
 
 /**
+ * GET /api/users/:userId
+ * Get user profile by ID (same user or Admin/Manager)
+ */
+router.get(
+  '/:userId',
+  verifyToken,
+  authorize(['Client', 'Engineer', 'Manager', 'Admin']),
+  async (req, res) => {
+    try {
+      const requestedUserId = Number(req.params.userId);
+      const currentUserId = Number(req.userId);
+      const currentRole = req.role;
+
+      // Users can only view their own profile, unless they're Admin/Manager
+      if (requestedUserId !== currentUserId && !['Admin', 'Manager'].includes(currentRole)) {
+        return res.status(403).json({
+          success: false,
+          message: 'You can only view your own profile',
+        });
+      }
+
+      const result = await db.query(
+        `SELECT
+           u.UserID,
+           u.Name,
+           u.Email,
+           u.Role,
+           u.CompanyID,
+           c.Name AS CompanyName,
+           u.CreatedAt,
+           u.UpdatedAt
+         FROM Users u
+         LEFT JOIN Companies c ON u.CompanyID = c.CompanyID
+         WHERE u.UserID = ?
+           AND IFNULL(u.IsDeleted, 0) = 0`,
+        [requestedUserId]
+      );
+
+      const user = result?.[0]?.[0];
+
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: 'User not found',
+        });
+      }
+
+      res.json({
+        success: true,
+        data: {
+          userID: user.UserID,
+          name: user.Name,
+          email: user.Email,
+          role: user.Role,
+          companyID: user.CompanyID,
+          companyName: user.CompanyName,
+          createdAt: user.CreatedAt,
+          updatedAt: user.UpdatedAt,
+        },
+      });
+    } catch (err) {
+      console.error('Get user error:', err);
+      res.status(500).json({ success: false, message: 'Server error' });
+    }
+  }
+);
+
+/**
  * PUT /api/users/profile
  * Update user profile
  */

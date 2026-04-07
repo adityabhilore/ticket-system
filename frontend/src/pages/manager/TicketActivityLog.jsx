@@ -23,6 +23,7 @@ export default function TicketActivityLog() {
   const [auditLogs, setAuditLogs] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     fetchActivity();
   }, [id]);

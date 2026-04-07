@@ -185,6 +185,16 @@ const notifyTicketResolved = async (ticketId, reopenToken) => {
     console.log(`   Client: ${ticket.ClientName} (${ticket.ClientEmail})`);
     console.log(`   Engineer: ${ticket.EngineerName || 'Not assigned'}\n`);
 
+    // Use provided token OR fallback to ticket's stored token
+    const token = reopenToken || ticket.ReopenToken;
+    
+    if (!token) {
+      console.log(`⚠️ [Warning] No reopen token available for ticket #${ticketId}`);
+      console.log(`   Email will be sent but reopen links will not work\n`);
+    } else {
+      console.log(`✅ Using reopen token: ${token.substring(0, 20)}...\n`);
+    }
+
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:5000';
 
     // Prepare email with engineer name, reopen token, and action buttons
@@ -194,10 +204,10 @@ const notifyTicketResolved = async (ticketId, reopenToken) => {
       ClientName: ticket.ClientName,
       EngineerName: ticket.EngineerName || 'Support Team',
       ResolvedAt: new Date().toLocaleString(),
-      reopenToken: reopenToken,
+      reopenToken: token,
       backendUrl: backendUrl,
-      confirmUrl: `${backendUrl}/api/tickets/${ticketId}/confirm-resolved?token=${reopenToken}&action=confirmed`,
-      reopenUrl: `${backendUrl}/api/tickets/${ticketId}/confirm-resolved?token=${reopenToken}&action=reopen`,
+      confirmUrl: token ? `${backendUrl}/api/tickets/${ticketId}/confirm-resolved?token=${token}&action=confirmed` : '#',
+      reopenUrl: token ? `${backendUrl}/api/tickets/${ticketId}/confirm-resolved?token=${token}&action=reopen` : '#',
     };
 
     // Send email to CLIENT with reopen buttons

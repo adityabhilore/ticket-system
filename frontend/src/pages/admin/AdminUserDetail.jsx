@@ -12,10 +12,6 @@ export default function AdminUserDetail() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    fetchUserDetail();
-  }, [id]);
-
   const fetchUserDetail = async () => {
     try {
       setLoading(true);
@@ -28,6 +24,11 @@ export default function AdminUserDetail() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchUserDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const handleDelete = async () => {
     setDeleting(true);

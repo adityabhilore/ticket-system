@@ -18,6 +18,7 @@ export default function Settings() {
     createdAt: '',
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     loadProfile();
   }, []);

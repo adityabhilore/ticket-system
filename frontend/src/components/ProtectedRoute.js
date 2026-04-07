@@ -9,15 +9,25 @@ import useAuth from '../hooks/useAuth';
 const ProtectedRoute = ({ children, requiredRoles = [] }) => {
   const { isAuthenticated, user, loading } = useAuth();
 
+  console.log('🛡️  ProtectedRoute Check:', {
+    loading,
+    isAuthenticated,
+    userRole: user?.role,
+    requiredRoles,
+  });
+
   if (loading) {
+    console.log('⏳ Loading state - showing spinner');
     return <div className="spinner"></div>;
   }
 
   if (!isAuthenticated) {
+    console.warn('❌ Not authenticated - redirecting to login');
     return <Navigate to="/login" />;
   }
 
   if (requiredRoles.length > 0 && !requiredRoles.includes(user?.role)) {
+    console.warn('⛔ User role not in required roles - access denied');
     return (
       <div style={{
         display: 'flex',
@@ -35,6 +45,7 @@ const ProtectedRoute = ({ children, requiredRoles = [] }) => {
     );
   }
 
+  console.log('✅ Access granted to protected route');
   return children;
 };
 

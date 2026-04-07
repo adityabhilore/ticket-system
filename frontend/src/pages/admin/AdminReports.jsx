@@ -17,12 +17,14 @@ export default function AdminReports() {
 
   useEffect(() => {
     fetchReports();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateRange]);
 
   useEffect(() => {
     if (reports) {
       applyFilters();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [columnFilters, reports]);
 
   const fetchReports = async () => {

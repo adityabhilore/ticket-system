@@ -144,14 +144,6 @@ const Dashboard = () => {
     ? ((engineerCompletedOnTime / engineerCompletedTickets) * 100)
     : 0;
 
-  const displayCompletedTickets = user?.role === 'Engineer'
-    ? engineerCompletedTickets
-    : (parseInt(stats?.slaReport?.CompletedTickets, 10) || 0);
-
-  const displayCompletedOnTime = user?.role === 'Engineer'
-    ? engineerCompletedOnTime
-    : (parseInt(stats?.slaReport?.CompletedOnTime, 10) || 0);
-
   const displaySlaPercentage = user?.role === 'Engineer'
     ? engineerSlaPercentage
     : (parseFloat(stats?.slaReport?.SLAPercentage) || 0);

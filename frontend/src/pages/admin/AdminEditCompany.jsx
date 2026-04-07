@@ -12,10 +12,6 @@ export default function AdminEditCompany() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchCompanyDetail();
-  }, [id]);
-
   const fetchCompanyDetail = async () => {
     try {
       setLoading(true);
@@ -29,6 +25,11 @@ export default function AdminEditCompany() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCompanyDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

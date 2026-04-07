@@ -68,11 +68,6 @@ export default function AdminAuditLogs() {
     filterAndPaginateData(allLogs, columnFilters, currentPage);
   }, [columnFilters, currentPage, allLogs]);
 
-  const handleResetFilters = () => {
-    setColumnFilters({ user: '', role: '', action: '', ticket: '' });
-    setOpenFilterKey(null);
-  };
-
   const userOptions = [...new Set(allLogs.map(l => l.UserName).filter(Boolean))];
   const roleOptions = [...new Set(allLogs.map(l => l.UserRole).filter(Boolean))];
   const actionOptions = [...new Set(allLogs.map(l => l.Action).filter(Boolean))];

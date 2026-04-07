@@ -9,11 +9,10 @@ const CSATDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dateRange, setDateRange] = useState('30days');
-  const [report, setReport] = useState([]);
-  const [trend, setTrend] = useState([]);
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateRange]);
 
   const fetchData = async () => {
@@ -39,8 +38,7 @@ const CSATDashboard = () => {
         startDate: startDate.toISOString(),
         endDate: endDate.toISOString(),
       });
-      setReport(reportRes.data.data.report);
-      setTrend(reportRes.data.data.trend);
+      // Report and trend data available but not used in current implementation
     } catch (err) {
       setError('Failed to load CSAT data');
       console.error(err);

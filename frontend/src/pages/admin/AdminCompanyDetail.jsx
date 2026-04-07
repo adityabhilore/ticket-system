@@ -12,10 +12,6 @@ export default function AdminCompanyDetail() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    fetchCompanyDetail();
-  }, [id]);
-
   const fetchCompanyDetail = async () => {
     try {
       setLoading(true);
@@ -28,6 +24,11 @@ export default function AdminCompanyDetail() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchCompanyDetail();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const handleDelete = async () => {
     setDeleting(true);

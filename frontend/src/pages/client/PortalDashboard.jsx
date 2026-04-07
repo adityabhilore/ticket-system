@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import api from '../../services/api';
@@ -99,7 +99,6 @@ export default function PortalDashboard() {
     ['open', 'inProgress'].includes(getStatusBucket(t))
   );
 
-  const completedCount = stats.resolved + stats.closed;
   const recentTickets = [...tickets]
     .sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt))
     .slice(0, 5);
@@ -129,7 +128,7 @@ export default function PortalDashboard() {
       <div className="portal-page-header">
         <div>
           <h1 className="portal-page-title">
-            Welcome back, {user?.name}! ðŸ‘‹
+            Welcome back, {user?.name}!
           </h1>
           <p className="portal-page-sub">
             Support overview for <strong>{user?.companyName || 'your company'}</strong>
@@ -180,11 +179,11 @@ export default function PortalDashboard() {
           <div style={{display:'flex',alignItems:'center',
             justifyContent:'space-between',marginBottom:'14px'}}>
             <div style={{fontSize:'15px',fontWeight:'700',color:'#1E293B'}}>
-              Active Tickets â€” SLA Status
+              Active Tickets  SLA Status
             </div>
             <button className="portal-link-btn"
               onClick={() => navigate('/client/tickets')}>
-              View all â†’
+              View all
             </button>
           </div>
           <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
@@ -193,7 +192,7 @@ export default function PortalDashboard() {
               const ticketId = getTicketId(t);
               return (
                 <div key={ticketId || t.Title}
-                  onClick={() => ticketId && navigate(`/portal/tickets/${ticketId}`)}
+                  onClick={() => ticketId && navigate(`/client/tickets/${ticketId}`)}
                   style={{display:'flex',alignItems:'center',gap:'12px',
                     padding:'12px 14px',background:'#F8FAFC',
                     borderRadius:'8px',cursor:ticketId ? 'pointer' : 'default',
@@ -210,10 +209,10 @@ export default function PortalDashboard() {
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:'13px',fontWeight:'600',color:'#1E293B',
                       whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                      #{ticketId || '-'} â€” {t.Title}
+                      #{ticketId || '-'}  {t.Title}
                     </div>
                     <div style={{fontSize:'11px',color:'#6B7280',marginTop:'2px'}}>
-                      {t.StatusName} Â· {t.PriorityName}
+                      {t.StatusName}  {t.PriorityName}
                     </div>
                   </div>
 
@@ -248,13 +247,13 @@ export default function PortalDashboard() {
             </h3>
             <button className="portal-link-btn"
               onClick={() => navigate('/client/tickets')}>
-              View all â†’
+              View all 
             </button>
           </div>
 
           {tickets.length === 0 ? (
             <div className="portal-empty-state">
-              <div className="portal-empty-icon">ðŸŽ«</div>
+              <div className="portal-empty-icon"></div>
               <div style={{fontSize:'14px',fontWeight:'600',color:'#1E293B',marginBottom:'4px'}}>
                 No tickets yet
               </div>
@@ -272,11 +271,8 @@ export default function PortalDashboard() {
                 const ticketId = getTicketId(t);
                 return (
                 <div key={ticketId || `${t.Title}-${idx}`} className="portal-recent-item"
-                  onClick={() => ticketId && navigate(`/portal/tickets/${ticketId}`)}
+                  onClick={() => ticketId && navigate(`/client/tickets/${ticketId}`)}
                   style={{
-                    border: '1px solid #E2E8F0',
-                    background: '#F8FAFC',
-                    borderRadius: '10px',
                     padding: '10px 12px',
                     cursor: ticketId ? 'pointer' : 'default',
                     transition: 'all 0.15s ease',
@@ -297,7 +293,7 @@ export default function PortalDashboard() {
                       background: PRIORITY_COLORS[t.PriorityName] || '#9CA3AF'}} />
                     <span style={{flex:1,fontSize:'13px',fontWeight:'600',color:'#1E293B',
                       whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>
-                      #{ticketId || '-'} â€” {t.Title}
+                      #{ticketId || '-'}  {t.Title}
                     </span>
                   </div>
                   <div style={{fontSize:'11px',color:'#9CA3AF',display:'flex',justifyContent:'space-between',gap:'8px'}}>
@@ -358,13 +354,13 @@ export default function PortalDashboard() {
             Recent Activity
           </h3>
           <button className="portal-link-btn" onClick={() => navigate('/client/activity')}>
-            View all activity â†’
+            View all activity →
           </button>
         </div>
 
         {activityPreview.length === 0 ? (
           <div style={{textAlign:'center',padding:'20px',color:'#9CA3AF',fontSize:'13px'}}>
-            No activity yet â€” activity will appear here once tickets are updated
+            No activity yet – activity will appear here once tickets are updated
           </div>
         ) : (
           <div style={{display:'flex',flexDirection:'column',gap:'0'}}>
@@ -412,3 +408,4 @@ export default function PortalDashboard() {
     </div>
   );
 }
+

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useAuth from '../../hooks/useAuth';
 import api from '../../services/api';
-import { STATUS_STEPS, FRIENDLY_STATUS } from '../../constants/statusConfig';
+import { STATUS_STEPS } from '../../constants/statusConfig';
 import CSATRating from '../../components/CSATRating';
 import { checkCanRate } from '../../services/csatService';
 

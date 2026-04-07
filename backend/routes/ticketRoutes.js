@@ -78,6 +78,8 @@ router.get('/:ticketId', verifyToken, async (req, res) => {
         t.SLADeadline,
         t.CreatedAt,
         t.UpdatedAt,
+        t.ReopenToken,
+        t.ReopenTokenExp,
         s.StatusID,
         s.Name AS StatusName,
         p.PriorityID,
@@ -760,6 +762,7 @@ router.get('/:ticketId/confirm-resolved', async (req, res) => {
 
     // Validate params
     if (!token || !action) {
+      res.setHeader('Content-Type', 'text/html; charset=utf-8');
       return res.send(`
         <html>
         <head><meta charset="UTF-8"/><title>TicketDesk</title>
@@ -968,6 +971,7 @@ function buildAndSendResponse(res, type, emoji, title, message) {
     </html>
   `;
 
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
   res.send(html);
 }
 
