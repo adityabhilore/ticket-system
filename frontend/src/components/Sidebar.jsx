@@ -158,7 +158,7 @@ export default function Sidebar({ user, onLogout, mobileOpen = false, setMobileO
           </NavLink>
         ) : null}
 
-        {(role === 'Manager' || role === 'Admin') ? (
+        {role === 'Admin' ? (
           <NavLink
             to="/admin/csat"
             className={({ isActive }) => `sidebar-nav-item${isActive ? ' active' : ''}`}

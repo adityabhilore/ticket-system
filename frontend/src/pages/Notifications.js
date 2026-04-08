@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../../services/api';
-import { useAuth } from '../../hooks/useAuth';
-import '../../styles/notifications.css';
+import api from '../services/api';
+import { useAuth } from '../hooks/useAuth';
+import '../styles/notifications.css';
 
 export default function Notifications() {
   const navigate = useNavigate();
@@ -595,7 +595,6 @@ export default function Notifications() {
                     return acc;
                   }, [])
                   .map((email) => {
-                    const emailTypeStyle = getEmailTypeStyle(email.TemplateType);
                     const isReopened = email.TemplateType === 'TICKET_REOPENED';
                     const isConfirmed = email.TemplateType === 'TICKET_CONFIRMED';
                     
@@ -610,39 +609,125 @@ export default function Notifications() {
                           background: isReopened ? '#FEF2F2' : isConfirmed ? '#F0FDF4' : '#fff',
                           cursor: 'pointer',
                           transition: 'all 0.3s',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '16px',
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                          <div style={{ flex: 1 }}>
-                            <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#1F2937', margin: '0 0 4px 0' }}>
-                              {email.Subject}
-                              {email.TicketNumber && (
-                                <span style={{ fontSize: '12px', color: '#6B7280', fontWeight: '500', marginLeft: '8px' }}>
-                                  ({email.TicketNumber})
-                                </span>
-                              )}
-                            </h3>
-                            {email.TicketTitle && (
-                              <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0' }}>
-                                {email.TicketTitle}
-                              </p>
+                        {/* Icon Circle */}
+                        <div
+                          style={{
+                            width: '56px',
+                            height: '56px',
+                            minWidth: '56px',
+                            borderRadius: '50%',
+                            background: isReopened ? '#FEE2E2' : isConfirmed ? '#DCFCE7' : '#FEF3C7',
+                            border: isReopened ? '2px solid #DC2626' : isConfirmed ? '2px solid #10B981' : '2px solid #EA580C',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '28px',
+                            fontWeight: '700',
+                            marginTop: '2px',
+                          }}
+                        >
+                          {isReopened ? '⚠️' : isConfirmed ? '✅' : '📧'}
+                        </div>
+
+                        {/* Content */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          {/* Badges */}
+                          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                            {isReopened && (
+                              <span
+                                style={{
+                                  padding: '4px 12px',
+                                  background: '#DC2626',
+                                  color: '#fff',
+                                  borderRadius: '4px',
+                                  fontSize: '11px',
+                                  fontWeight: '700',
+                                  whiteSpace: 'nowrap',
+                                  textTransform: 'uppercase',
+                                }}
+                              >
+                                🔄 Reopened
+                              </span>
                             )}
-                            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '8px 0 0 0' }}>
-                              {new Date(email.SentAt).toLocaleString()}
-                            </p>
+                            {isConfirmed && (
+                              <span
+                                style={{
+                                  padding: '4px 12px',
+                                  background: '#10B981',
+                                  color: '#fff',
+                                  borderRadius: '4px',
+                                  fontSize: '11px',
+                                  fontWeight: '700',
+                                  whiteSpace: 'nowrap',
+                                  textTransform: 'uppercase',
+                                }}
+                              >
+                                ✅ Confirmed
+                              </span>
+                            )}
+                            {email.TicketTitle && (
+                              <span
+                                style={{
+                                  padding: '4px 12px',
+                                  background: '#FEF3C7',
+                                  color: '#EA580C',
+                                  borderRadius: '4px',
+                                  fontSize: '11px',
+                                  fontWeight: '700',
+                                  whiteSpace: 'nowrap',
+                                  textTransform: 'uppercase',
+                                }}
+                              >
+                                📋 Issue Unresolved
+                              </span>
+                            )}
                           </div>
-                          <div style={{
+
+                          {/* Ticket Number */}
+                          {email.TicketNumber && (
+                            <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#DC2626', margin: '6px 0' }}>
+                              #{email.TicketNumber}
+                            </h4>
+                          )}
+
+                          {/* Subject/Title */}
+                          <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#1F2937', margin: '4px 0 6px 0' }}>
+                            {email.Subject}
+                          </h3>
+
+                          {/* Status Change */}
+                          {isReopened && (
+                            <p style={{ fontSize: '12px', color: '#7F1D1D', margin: '8px 0', fontWeight: '500' }}>
+                              Status: Resolved → Reopened
+                            </p>
+                          )}
+
+                          {/* Timestamp */}
+                          <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '8px 0 0 0' }}>
+                            {new Date(email.SentAt).toLocaleString()}
+                          </p>
+                        </div>
+
+                        {/* Status Badge on Right */}
+                        <div
+                          style={{
                             padding: '4px 8px',
                             background: email.Status === 'SENT' ? '#DCFCE7' : '#FEE2E2',
                             color: email.Status === 'SENT' ? '#15803D' : '#DC2626',
                             borderRadius: '4px',
-                            fontSize: '11px',
+                            fontSize: '10px',
                             fontWeight: '600',
                             flexShrink: 0,
                             whiteSpace: 'nowrap',
-                          }}>
-                            {email.Status}
-                          </div>
+                            textTransform: 'uppercase',
+                          }}
+                        >
+                          {email.Status}
                         </div>
                       </div>
                     );

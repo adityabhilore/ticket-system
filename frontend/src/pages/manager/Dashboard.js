@@ -354,7 +354,10 @@ const Dashboard = () => {
                         <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
                         <XAxis dataKey="name" />
                         <YAxis />
-                        <Tooltip />
+                        <Tooltip 
+                          contentStyle={{ background: 'transparent', border: 'none' }}
+                          cursor={false}
+                        />
                         <Bar dataKey="value" fill="#4F46E5" radius={[8, 8, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
