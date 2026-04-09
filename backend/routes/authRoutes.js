@@ -160,50 +160,47 @@ router.put('/notifications/:notificationId/read', verifyToken, async (req, res) 
 });
 
 /**
- * GET /api/auth/emails
- * Get all email notifications for current user (Engineer)
- * Shows emails like TICKET_REOPENED, TICKET_ASSIGNED, etc.
+ * GET /api/auth/inbound-emails
+ * Get all inbound email notifications for current user from Notifications table
  */
-router.get('/emails', verifyToken, async (req, res) => {
+router.get('/inbound-emails', verifyToken, async (req, res) => {
   try {
-    const { userId, role } = req;
+    const { userId, role, companyId } = req;
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const requestedLimit = parseInt(req.query.limit, 10) || 25;
     const limit = Math.min(Math.max(requestedLimit, 1), 100);
     const offset = (page - 1) * limit;
 
-    // Only Engineers can view their received emails
-    if (role !== 'Engineer') {
-      return res.status(403).json({ message: 'Only engineers can view email notifications' });
-    }
-
+    // Count total email notifications for current user
     const countSql = `
       SELECT COUNT(*) AS total
-      FROM EmailNotifications e
-      LEFT JOIN Tickets t ON t.TicketID = e.TicketID
-      WHERE e.RecipientRole = 'Engineer' AND (t.AssignedTo = ? OR e.TicketID IS NULL)
+      FROM Notifications n
+      LEFT JOIN InboundEmails ie ON n.InboundEmailID = ie.InboundEmailID
+      LEFT JOIN Tickets t ON n.TicketID = t.TicketID
+      WHERE n.UserID = ? AND n.Type = 'email'
     `;
     const countResult = await db.query(countSql, [userId]);
     const total = countResult[0]?.[0]?.total || 0;
 
+    // Fetch email notifications
     const sql = `
-      SELECT 
-        e.NotificationID as EmailNotificationID,
-        e.TicketID,
-        e.TemplateType,
-        e.RecipientEmail,
-        e.RecipientName,
-        e.Subject,
-        e.EmailBody,
-        e.Status,
-        e.SentAt,
-        t.Title as TicketTitle,
-        CONCAT('#', t.TicketID) as TicketNumber
-      FROM EmailNotifications e
-      LEFT JOIN Tickets t ON t.TicketID = e.TicketID
-      WHERE e.RecipientRole = 'Engineer' AND e.RecipientEmail IN 
-        (SELECT Email FROM Users WHERE UserID = ?)
-      ORDER BY e.SentAt DESC
+      SELECT
+        CONCAT('email_', n.NotificationID) AS id,
+        n.Title AS message,
+        n.CreatedAt AS time,
+        n.TicketID,
+        t.Title AS ticketTitle,
+        ie.FromName AS actorName,
+        ie.FromEmail AS actorEmail,
+        'email' AS type,
+        ie.Subject,
+        ie.ProcessType,
+        n.IsRead
+      FROM Notifications n
+      LEFT JOIN InboundEmails ie ON n.InboundEmailID = ie.InboundEmailID
+      LEFT JOIN Tickets t ON n.TicketID = t.TicketID
+      WHERE n.UserID = ? AND n.Type = 'email'
+      ORDER BY n.CreatedAt DESC
       LIMIT ? OFFSET ?
     `;
 
@@ -218,6 +215,63 @@ router.get('/emails', verifyToken, async (req, res) => {
       hasMore: offset + data.length < total,
     });
   } catch(err) {
+    console.error('Inbound emails error:', err);
+    res.status(500).json({ message: 'Failed to fetch inbound emails' });
+  }
+});
+
+/**
+ * GET /api/auth/emails
+ * Get outbound email notifications for current user
+ */
+router.get('/emails', verifyToken, async (req, res) => {
+  try {
+    const { userId } = req;
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const requestedLimit = parseInt(req.query.limit, 10) || 25;
+    const limit = Math.min(Math.max(requestedLimit, 1), 100);
+    const offset = (page - 1) * limit;
+
+    // Match by recipient email of the logged-in user.
+    const countSql = `
+      SELECT COUNT(*) AS total
+      FROM EmailNotifications e
+      WHERE e.RecipientEmail IN (SELECT Email FROM Users WHERE UserID = ?)
+    `;
+    const countResult = await db.query(countSql, [userId]);
+    const total = countResult[0]?.[0]?.total || 0;
+
+    const sql = `
+      SELECT
+        e.NotificationID AS EmailNotificationID,
+        e.TicketID,
+        e.TemplateType,
+        e.RecipientEmail,
+        e.RecipientName,
+        e.Subject,
+        e.EmailBody,
+        e.Status,
+        e.SentAt,
+        t.Title AS TicketTitle,
+        CONCAT('#', t.TicketID) AS TicketNumber
+      FROM EmailNotifications e
+      LEFT JOIN Tickets t ON t.TicketID = e.TicketID
+      WHERE e.RecipientEmail IN (SELECT Email FROM Users WHERE UserID = ?)
+      ORDER BY e.SentAt DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const result = await db.query(sql, [userId, limit, offset]);
+    const data = result[0] || [];
+
+    res.json({
+      data,
+      page,
+      limit,
+      total,
+      hasMore: offset + data.length < total,
+    });
+  } catch (err) {
     console.error('Failed to fetch emails:', err);
     res.status(500).json({ message: 'Failed to fetch email notifications' });
   }

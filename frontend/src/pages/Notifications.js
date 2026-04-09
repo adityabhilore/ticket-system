@@ -77,7 +77,7 @@ export default function Notifications() {
   const fetchEmails = async (targetPage = 1, append = false) => {
     try {
       setEmailsLoading(true);
-      const res = await api.get('/auth/emails', {
+      const res = await api.get('/auth/inbound-emails', {
         params: { page: targetPage, limit: PAGE_SIZE },
       });
 
@@ -105,38 +105,20 @@ export default function Notifications() {
     }
   };
 
-  const getUniqueDedupedEmails = () => {
-    return emails.reduce((acc, email) => {
-      const existingIndex = acc.findIndex(e => e.TicketID === email.TicketID);
-      if (existingIndex === -1) {
-        acc.push(email);
-      } else {
-        const existingDate = new Date(acc[existingIndex].SentAt).getTime();
-        const newDate = new Date(email.SentAt).getTime();
-        if (newDate > existingDate) {
-          acc[existingIndex] = email;
-        }
-      }
-      return acc;
-    }, []);
-  };
-
-  const uniqueEmailCount = getUniqueDedupedEmails().length;
-
-  const handleEmailClick = (email) => {
-    if (email.TicketID) {
-      if (user?.role === 'Admin') {
-        navigate(`/admin/tickets/${email.TicketID}`);
-      } else {
-        navigate(`/tickets/${email.TicketID}`);
-      }
-    }
-  };
-
   const handleEmailLoadMore = () => {
     if (!emailHasMore || emailLoadingMore) return;
     setEmailLoadingMore(true);
     fetchEmails(emailPage + 1, true);
+  };
+
+  const handleEmailClick = (email) => {
+    if (email.ticketId) {
+      if (user?.role === 'Admin') {
+        navigate(`/admin/tickets/${email.ticketId}`);
+      } else {
+        navigate(`/tickets/${email.ticketId}`);
+      }
+    }
   };
 
   const handleMarkAsRead = async (notificationId) => {
@@ -272,8 +254,8 @@ export default function Notifications() {
             position: 'relative',
           }}
         >
-          📧 Emails
-          {uniqueEmailCount > 0 && (
+          📧 Mail
+          {emails.length > 0 && (
             <span
               style={{
                 position: 'absolute',
@@ -290,9 +272,9 @@ export default function Notifications() {
                 fontSize: '12px',
                 fontWeight: '700',
               }}
-              title={`Active tickets with emails: ${uniqueEmailCount}`}
+              title={`Email notifications: ${emails.length}`}
             >
-              {uniqueEmailCount > 99 ? '99+' : uniqueEmailCount}
+              {emails.length > 99 ? '99+' : emails.length}
             </span>
           )}
         </button>
@@ -577,36 +559,21 @@ export default function Notifications() {
                 {emails
                   .filter((email) => {
                     const query = emailSearchText.trim().toLowerCase();
-                    const haystack = `${email.Subject || ''} ${email.TicketTitle || ''} ${email.TicketNumber || ''}`.toLowerCase();
+                    const haystack = `${email.subject || ''} ${email.ticketTitle || ''} ${email.message || ''}`.toLowerCase();
                     return !query || haystack.includes(query);
                   })
-                  .reduce((acc, email) => {
-                    const existingIndex = acc.findIndex(e => e.TicketID === email.TicketID);
-                    if (existingIndex === -1) {
-                      acc.push(email);
-                    } else {
-                      const existing = acc[existingIndex];
-                      const existingDate = new Date(existing.SentAt).getTime();
-                      const newDate = new Date(email.SentAt).getTime();
-                      if (newDate > existingDate) {
-                        acc[existingIndex] = email;
-                      }
-                    }
-                    return acc;
-                  }, [])
-                  .map((email) => {
-                    const isReopened = email.TemplateType === 'TICKET_REOPENED';
-                    const isConfirmed = email.TemplateType === 'TICKET_CONFIRMED';
+                  .map((email, index) => {
+                    const isReopen = email.processType === 'reopen';
                     
                     return (
                       <div
-                        key={email.EmailNotificationID}
+                        key={email.id}
                         onClick={() => handleEmailClick(email)}
                         style={{
                           padding: '16px',
-                          border: isReopened ? '3px solid #DC2626' : isConfirmed ? '3px solid #10B981' : '1px solid #E5E7EB',
+                          border: isReopen ? '3px solid #DC2626' : '1px solid #E5E7EB',
                           borderRadius: '8px',
-                          background: isReopened ? '#FEF2F2' : isConfirmed ? '#F0FDF4' : '#fff',
+                          background: isReopen ? '#FEF2F2' : '#F9FAFB',
                           cursor: 'pointer',
                           transition: 'all 0.3s',
                           display: 'flex',
@@ -614,31 +581,30 @@ export default function Notifications() {
                           gap: '16px',
                         }}
                       >
-                        {/* Icon Circle */}
+                        {/* Email Icon */}
                         <div
                           style={{
-                            width: '56px',
-                            height: '56px',
-                            minWidth: '56px',
+                            width: '48px',
+                            height: '48px',
+                            minWidth: '48px',
                             borderRadius: '50%',
-                            background: isReopened ? '#FEE2E2' : isConfirmed ? '#DCFCE7' : '#FEF3C7',
-                            border: isReopened ? '2px solid #DC2626' : isConfirmed ? '2px solid #10B981' : '2px solid #EA580C',
+                            background: isReopen ? '#FEE2E2' : '#EFF6FF',
+                            border: isReopen ? '2px solid #DC2626' : '2px solid #BFDBFE',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            fontSize: '28px',
-                            fontWeight: '700',
-                            marginTop: '2px',
+                            fontSize: '24px',
+                            flexShrink: 0,
                           }}
                         >
-                          {isReopened ? '⚠️' : isConfirmed ? '✅' : '📧'}
+                          ✉️
                         </div>
 
                         {/* Content */}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          {/* Badges */}
+                          {/* Badge */}
                           <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                            {isReopened && (
+                            {isReopen && (
                               <span
                                 style={{
                                   padding: '4px 12px',
@@ -651,14 +617,14 @@ export default function Notifications() {
                                   textTransform: 'uppercase',
                                 }}
                               >
-                                🔄 Reopened
+                                🔄 Reopened via Email
                               </span>
                             )}
-                            {isConfirmed && (
+                            {email.processType === 'new_ticket' && (
                               <span
                                 style={{
                                   padding: '4px 12px',
-                                  background: '#10B981',
+                                  background: '#4F46E5',
                                   color: '#fff',
                                   borderRadius: '4px',
                                   fontSize: '11px',
@@ -667,71 +633,48 @@ export default function Notifications() {
                                   textTransform: 'uppercase',
                                 }}
                               >
-                                ✅ Confirmed
-                              </span>
-                            )}
-                            {email.TicketTitle && (
-                              <span
-                                style={{
-                                  padding: '4px 12px',
-                                  background: '#FEF3C7',
-                                  color: '#EA580C',
-                                  borderRadius: '4px',
-                                  fontSize: '11px',
-                                  fontWeight: '700',
-                                  whiteSpace: 'nowrap',
-                                  textTransform: 'uppercase',
-                                }}
-                              >
-                                📋 Issue Unresolved
+                                ✉️ New Email Ticket
                               </span>
                             )}
                           </div>
 
-                          {/* Ticket Number */}
-                          {email.TicketNumber && (
-                            <h4 style={{ fontSize: '15px', fontWeight: '700', color: '#DC2626', margin: '6px 0' }}>
-                              #{email.TicketNumber}
-                            </h4>
+                          {/* Ticket ID & Title */}
+                          {email.ticketId && (
+                            <div style={{ marginBottom: '6px' }}>
+                              <h4 style={{ fontSize: '13px', fontWeight: '700', color: '#2563EB', margin: 0 }}>
+                                Ticket #{email.ticketId}
+                              </h4>
+                              {email.ticketTitle && (
+                                <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#1F2937', margin: '2px 0 0 0' }}>
+                                  {email.ticketTitle}
+                                </h3>
+                              )}
+                            </div>
                           )}
 
-                          {/* Subject/Title */}
-                          <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#1F2937', margin: '4px 0 6px 0' }}>
-                            {email.Subject}
-                          </h3>
-
-                          {/* Status Change */}
-                          {isReopened && (
-                            <p style={{ fontSize: '12px', color: '#7F1D1D', margin: '8px 0', fontWeight: '500' }}>
-                              Status: Resolved → Reopened
+                          {/* From & Subject */}
+                          <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0' }}>
+                            <strong>From:</strong> {email.actorName} ({email.actorEmail})
+                          </p>
+                          {email.subject && (
+                            <p style={{ fontSize: '13px', color: '#6B7280', margin: '4px 0', wordBreak: 'break-word' }}>
+                              <strong>Subject:</strong> {email.subject}
                             </p>
                           )}
 
+                          {/* Message */}
+                          <p style={{ fontSize: '13px', color: '#6B7280', margin: '6px 0 2px 0', fontStyle: 'italic' }}>
+                            {email.message}
+                          </p>
+
                           {/* Timestamp */}
                           <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '8px 0 0 0' }}>
-                            {new Date(email.SentAt).toLocaleString()}
+                            {new Date(email.time).toLocaleString()}
                           </p>
-                        </div>
-
-                        {/* Status Badge on Right */}
-                        <div
-                          style={{
-                            padding: '4px 8px',
-                            background: email.Status === 'SENT' ? '#DCFCE7' : '#FEE2E2',
-                            color: email.Status === 'SENT' ? '#15803D' : '#DC2626',
-                            borderRadius: '4px',
-                            fontSize: '10px',
-                            fontWeight: '600',
-                            flexShrink: 0,
-                            whiteSpace: 'nowrap',
-                            textTransform: 'uppercase',
-                          }}
-                        >
-                          {email.Status}
                         </div>
                       </div>
                     );
-                  })}
+                })}
 
                 {emailHasMore && (
                   <div style={{ display: 'flex', justifyContent: 'center', marginTop: '6px' }}>

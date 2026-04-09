@@ -94,22 +94,41 @@ const verifyUserPassword = async (email, password) => {
     [email]
   );
 
-  const user = result[0][0] || null;
+  const users = result[0] || [];
 
-  if (!user) {
+  if (!users.length) {
     console.log('  ❌ User not found in database:', email);
     return null;
   }
 
-  console.log('  ✅ User found:', user.Name);
-  console.log('  🔑 Stored hash:', user.PasswordHash.substring(0, 20) + '...');
+  if (users.length > 1) {
+    console.log(`  ⚠️ Duplicate email detected (${users.length} users):`, email);
+  }
 
-  const isValid = await comparePassword(password, user.PasswordHash);
+  // Support duplicate emails by finding the row whose hash matches the supplied password.
+  // This keeps legacy data working while still authenticating a single concrete user.
+  const matchedUsers = [];
+  for (const user of users) {
+    const isValid = await comparePassword(password, user.PasswordHash);
+    if (isValid) {
+      matchedUsers.push(user);
+    }
+  }
 
-  if (!isValid) {
+  if (matchedUsers.length === 0) {
     console.log('  ❌ Password does not match!');
     return null;
   }
+
+  if (matchedUsers.length > 1) {
+    console.log('  ❌ Ambiguous login: multiple users matched same email+password');
+    return null;
+  }
+
+  const user = matchedUsers[0];
+
+  console.log('  ✅ User found:', user.Name);
+  console.log('  🔑 Stored hash:', user.PasswordHash.substring(0, 20) + '...');
 
   console.log('  ✅ Password matches!');
 

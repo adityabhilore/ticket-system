@@ -64,7 +64,12 @@ const query = async (queryText, params = []) => {
       recordset: results,
     };
   } catch (err) {
-    console.error('Query execution error:', err.message);
+    // Silently skip duplicate entry errors (old emails being re-processed)
+    if (!err.message.includes('Duplicate entry')) {
+      console.error('Query execution error:', err.message || err.code || err);
+      console.error('  Query:', queryText);
+      console.error('  Stack:', err.stack);
+    }
     throw err;
   }
 };
@@ -77,7 +82,10 @@ const queryOne = async (queryText, params = []) => {
     const result = await query(queryText, params);
     return result.recordset && result.recordset.length > 0 ? result.recordset[0] : null;
   } catch (err) {
-    console.error('Query execution error:', err.message);
+    // Silently skip duplicate entry errors (old emails being re-processed)
+    if (!err.message.includes('Duplicate entry')) {
+      console.error('Query execution error:', err.message || err.code || err);
+    }
     throw err;
   }
 };

@@ -214,7 +214,30 @@ const notifyTicketResolved = async (ticketId, reopenToken) => {
     console.log(`[EMAIL] Sending to CLIENT (${ticket.ClientEmail})...`);
     const clientTemplate = await getTemplate('TICKET_RESOLVED', 'Client');
     if (clientTemplate && ticket.ClientEmail) {
-      const { subject, body } = renderTemplate(clientTemplate, emailVars);
+      // Get original email's Gmail MessageID for threading
+      const originalEmailResult = await query(
+        `SELECT GmailMessageID FROM InboundEmails WHERE TicketID = ? ORDER BY CreatedAt ASC LIMIT 1`,
+        [ticketId]
+      );
+      const originalMessageId = originalEmailResult[0]?.[0]?.GmailMessageID;
+
+      let { subject, body } = renderTemplate(clientTemplate, emailVars);
+      // Add [TKT-{id}] tag to subject for email reply matching
+      subject = `${subject} [TKT-${ticketId}]`;
+
+      // Prepare threading headers so reply comes back with same threadId
+      const customHeaders = {
+        'X-TicketDesk-TicketID': `TKT-${ticketId}`,
+        'X-TicketDesk-ThreadID': ticket.EmailThreadID || '',
+      };
+
+      if (originalMessageId) {
+        // Reference the original email so Gmail threads them together
+        customHeaders['In-Reply-To'] = `<${originalMessageId}>`;
+        customHeaders['References'] = `<${originalMessageId}>`;
+        console.log(`   Threading with original email: ${originalMessageId}`);
+      }
+
       await sendEmail(
         ticket.ClientEmail,
         subject,
@@ -222,7 +245,8 @@ const notifyTicketResolved = async (ticketId, reopenToken) => {
         'TICKET_RESOLVED',  // ✅ Use 'TICKET_RESOLVED'
         ticketId,
         ticket.ClientName,
-        'Client'
+        'Client',
+        customHeaders  // ✅ Pass threading headers
       );
       console.log(`✅ Email sent to CLIENT with reopen token\n`);
     }

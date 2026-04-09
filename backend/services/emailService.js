@@ -11,9 +11,10 @@ const { query } = require('../config/database');
  * @param {number} ticketId - Ticket ID for logging
  * @param {string} recipientName - Recipient name for logging
  * @param {string} recipientRole - Role (Client, Engineer, Manager, Admin)
+ * @param {object} customHeaders - Optional custom headers like In-Reply-To, References for threading
  * @returns {boolean} Success status
  */
-const sendEmail = async (to, subject, htmlBody, templateType, ticketId, recipientName = '', recipientRole = '') => {
+const sendEmail = async (to, subject, htmlBody, templateType, ticketId, recipientName = '', recipientRole = '', customHeaders = {}) => {
   try {
     const transporter = getTransporter();
     const recipients = Array.isArray(to) ? to : [to];
@@ -29,6 +30,7 @@ const sendEmail = async (to, subject, htmlBody, templateType, ticketId, recipien
       to: toList,
       subject: subject,
       html: htmlBody,
+      headers: customHeaders,
     };
 
     // Send email via SMTP

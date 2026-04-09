@@ -23,6 +23,7 @@ const { errorHandler } = require('./middleware/errorHandler');
 
 // Import jobs
 const { startSLAMonitoring } = require('./jobs/slaMonitor');
+const { processInboundEmails } = require('./services/emailProcessor');
 
 // Initialize Express app
 const app = express();
@@ -61,6 +62,13 @@ app.use(errorHandler);
 
 // Start scheduled jobs
 startSLAMonitoring();
+
+// Poll Gmail inbox every 30 seconds
+cron.schedule('*/30 * * * * *', async () => {
+  await processInboundEmails();
+});
+
+console.log('📧 Email polling started — checking every 30 seconds');
 
 // Start server
 const PORT = parseInt(process.env.PORT) || 5000;
