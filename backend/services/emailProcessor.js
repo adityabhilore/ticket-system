@@ -153,6 +153,7 @@ const handleReplyEmail = async (email, inboundEmailId, gmailThreadId) => {
         t.AssignedTo,
         t.CreatedBy,
         t.CompanyID,
+        t.UpdatedAt,
         s.Name AS StatusName
       FROM Tickets t
       JOIN Status s ON t.StatusID = s.StatusID
@@ -169,7 +170,7 @@ const handleReplyEmail = async (email, inboundEmailId, gmailThreadId) => {
         const extractedTicketId = subjectMatch[1];
         const ticketBySubjectResult = await db.query(`
           SELECT t.TicketID, t.Title, t.AssignedTo, t.CreatedBy,
-                 t.CompanyID, s.Name AS StatusName
+                 t.CompanyID, t.UpdatedAt, s.Name AS StatusName
           FROM Tickets t
           JOIN Status s ON t.StatusID = s.StatusID
           WHERE t.TicketID=?
@@ -196,7 +197,28 @@ const handleReplyEmail = async (email, inboundEmailId, gmailThreadId) => {
       return;
     }
 
-    console.log(`  Status is "${ticket.StatusName}" — proceeding to reopen...`);
+    console.log(`  Status is "${ticket.StatusName}" — proceeding to check 48-hour window...`);
+
+    // ── CHECK 48-HOUR WINDOW ──
+    // If ticket was resolved/closed more than 48 hours ago, ignore the reply
+    const now = new Date();
+    const ticketUpdatedAt = new Date(ticket.UpdatedAt);
+    const hoursSinceResolution = (now - ticketUpdatedAt) / (1000 * 60 * 60);
+    
+    console.log(`  ⏰ Ticket resolved: ${ticketUpdatedAt.toLocaleString()}`);
+    console.log(`  ⏰ Hours since resolution: ${Math.floor(hoursSinceResolution)}h`);
+
+    if (hoursSinceResolution > 48) {
+      console.log(`  ❌ Outside 48-hour window (${Math.floor(hoursSinceResolution)}h) — ignoring reply`);
+      await db.query(
+        `UPDATE InboundEmails SET Status='ignored', ProcessType='outside_window'
+         WHERE InboundEmailID=?`,
+        [inboundEmailId]
+      );
+      return;
+    }
+
+    console.log(`  ✅ Within 48-hour window — reopen is allowed`);
 
     // Verify sender is the client who raised this ticket
     const clientResult = await db.query(

@@ -286,15 +286,6 @@ const Dashboard = () => {
               </div>
               <div className="stat-card-sub">Completed</div>
             </div>
-            <div className="stat-card ontime">
-              <div className="stat-card-label">Resolved On Time</div>
-              <div className="stat-card-value">
-                {user?.role === 'Engineer'
-                  ? engineerCompletedOnTime
-                  : (parseInt(stats?.slaReport?.CompletedOnTime) || 0)}
-              </div>
-              <div className="stat-card-sub">SLA met</div>
-            </div>
           </div>
 
           {/* SLA Compliance Card */}

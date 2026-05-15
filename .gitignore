@@ -59,6 +59,9 @@ tmp/
 temp/
 *.tmp
 
+#docs
+docs/
+
 # Database dumps
 *.sql
 database/

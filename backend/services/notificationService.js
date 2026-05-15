@@ -144,6 +144,38 @@ const notifyTicketCreated = async (ticketId) => {
       }
     }
 
+    // ===== EMAIL #3: TO MANAGER (Ticket Assigned - for visibility) =====
+    console.log(`[EMAIL 3/3] Getting MANAGER...`);
+    const managerResult = await query(
+      `SELECT UserID, Name, Email FROM Users WHERE CompanyID = ? AND Role = 'Manager' LIMIT 1`,
+      [ticket.CompanyID]
+    );
+    const manager = managerResult[0]?.[0];
+    
+    if (manager) {
+      console.log(`[EMAIL 3/3] Found MANAGER: ${manager.Name} (${manager.Email})`);
+      const managerTemplate = await getTemplate('TICKET_ASSIGNED', 'Manager');
+      
+      if (managerTemplate && manager.Email) {
+        console.log(`[EMAIL 3/3] Rendering and sending to MANAGER (${manager.Email})...`);
+        const { subject, body } = renderTemplate(managerTemplate, emailVars);
+        const emailSent = await sendEmail(
+          manager.Email,
+          subject,
+          body,
+          'TICKET_ASSIGNED',  // ✅ Use same template as sent to engineer
+          ticketId,
+          manager.Name,
+          'Manager'  // ✅ Pass role as 'Manager'
+        );
+        console.log(`${emailSent ? '✅' : '❌'} Email to MANAGER: ${emailSent ? 'SENT' : 'FAILED'}\n`);
+      } else {
+        console.log(`⚠️ Skipped MANAGER email - Template: ${managerTemplate ? 'OK' : 'MISSING'}\n`);
+      }
+    } else {
+      console.log(`⚠️ No manager found for company #${ticket.CompanyID}\n`);
+    }
+
     console.log(`${'='.repeat(70)}\n`);
 
   } catch (error) {
@@ -249,6 +281,35 @@ const notifyTicketResolved = async (ticketId, reopenToken) => {
         customHeaders  // ✅ Pass threading headers
       );
       console.log(`✅ Email sent to CLIENT with reopen token\n`);
+    }
+
+    // Send email to MANAGER for visibility
+    console.log(`[EMAIL] Sending to MANAGER...`);
+    const managerResult = await query(
+      `SELECT UserID, Name, Email FROM Users WHERE CompanyID = ? AND Role = 'Manager' LIMIT 1`,
+      [ticket.CompanyID || 1]  // Fallback to company 1 if not found
+    );
+    const manager = managerResult[0]?.[0];
+
+    if (manager && manager.Email) {
+      console.log(`[EMAIL] MANAGER found: ${manager.Name} (${manager.Email})`);
+      const managerTemplate = await getTemplate('TICKET_RESOLVED', 'Manager');
+      
+      if (managerTemplate) {
+        const { subject, body } = renderTemplate(managerTemplate, emailVars);
+        await sendEmail(
+          manager.Email,
+          subject,
+          body,
+          'TICKET_RESOLVED',  // ✅ Use same template type
+          ticketId,
+          manager.Name,
+          'Manager'
+        );
+        console.log(`✅ Email sent to MANAGER\n`);
+      }
+    } else {
+      console.log(`⚠️ No manager found or invalid company\n`);
     }
 
     console.log(`${'='.repeat(70)}\n`);
@@ -417,6 +478,35 @@ const notifyTicketReopened = async (ticketId) => {
       console.log(`✅ REOPENED notification sent to ENGINEER\n`);
     } else {
       console.log(`⚠️ Skipped ENGINEER email - Template: ${engineerTemplate ? 'OK' : 'MISSING'}\n`);
+    }
+
+    // Send email to MANAGER for visibility
+    console.log(`[EMAIL] Sending REOPENED notification to MANAGER...`);
+    const managerResult = await query(
+      `SELECT UserID, Name, Email FROM Users WHERE CompanyID = ? AND Role = 'Manager' LIMIT 1`,
+      [ticket.CompanyID || 1]
+    );
+    const manager = managerResult[0]?.[0];
+
+    if (manager && manager.Email) {
+      console.log(`[EMAIL] MANAGER found: ${manager.Name} (${manager.Email})`);
+      const managerTemplate = await getTemplate('TICKET_REOPENED', 'Manager');
+      
+      if (managerTemplate) {
+        const { subject, body } = renderTemplate(managerTemplate, emailVars);
+        await sendEmail(
+          manager.Email,
+          subject,
+          body,
+          'TICKET_REOPENED',
+          ticketId,
+          manager.Name,
+          'Manager'
+        );
+        console.log(`✅ REOPENED notification sent to MANAGER\n`);
+      }
+    } else {
+      console.log(`⚠️ No manager found\n`);
     }
 
     console.log(`${'='.repeat(70)}\n`);

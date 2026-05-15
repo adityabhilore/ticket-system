@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import useAuth from '../hooks/useAuth';
 import Sidebar from './Sidebar';
 import '../styles/main.css';
+import '../styles/mobile-responsive.css';
 
 const Layout = ({ children }) => {
   const { user, logout } = useAuth();
