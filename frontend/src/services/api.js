@@ -1,14 +1,8 @@
 import axios from 'axios';
 
-// Build timestamp to force Vercel redeploy
-const buildTime = '2026-05-18T12:07:45Z';
-
-let API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
-
-// Ensure /api is appended if not already present
-if (API_URL && !API_URL.includes('/api')) {
-  API_URL = API_URL + '/api';
-}
+// Production: https://ticket-system-api-5pr4.onrender.com/api
+// Local: http://localhost:5000/api
+const API_URL = 'https://ticket-system-api-5pr4.onrender.com/api';
 
 // Create axios instance
 const api = axios.create({
