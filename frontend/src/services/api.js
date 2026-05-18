@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+// Build timestamp to force Vercel redeploy
+const buildTime = '2026-05-18T12:04';
+
 let API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
 // Ensure /api is appended if not already present
